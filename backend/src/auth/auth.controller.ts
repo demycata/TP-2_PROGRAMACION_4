@@ -3,6 +3,8 @@ import {
   Body,
   Controller,
   FileTypeValidator,
+  HttpCode,
+  HttpStatus,
   MaxFileSizeValidator,
   ParseFilePipe,
   Post,
@@ -12,6 +14,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from './auth.service.js';
 import { RegistroDto } from './dto/registro.dto.js';
+import { LoginDto } from './dto/login.dto.js';
 
 @Controller('auth')
 export class AuthController {
@@ -42,5 +45,11 @@ export class AuthController {
     imagen: Express.Multer.File,
   ) {
     return this.authService.registro(registroDto, imagen);
+  }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 }

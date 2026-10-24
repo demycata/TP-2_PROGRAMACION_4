@@ -1,9 +1,10 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PasswordHasher } from '@nestjs/authentication';
 import { Model } from 'mongoose';
 import { RegistroDto } from './dto/registro.dto.js';
-import { Usuario } from '../usuarios/entities/usuario.entity.js';
+import { LoginDto } from './dto/login.dto.js';
+import { Usuario, UsuarioDocument } from '../usuarios/entities/usuario.entity.js';
 import { CloudinaryService } from '../shared/cloudinary/cloudinary.service.js';
 
 @Injectable()
@@ -32,7 +33,23 @@ export class AuthService {
 
     const usuario = await this.usuarioModel.create({ ...registroDto, password, imagenPerfil });
 
-    const { password: _, ...datos } = usuario.toObject();
+    return this.sinPassword(usuario);
+  }
+
+  async login(loginDto: LoginDto) {
+    const usuario = await this.usuarioModel
+      .findOne({ nombreUsuario: loginDto.nombreUsuario })
+      .select('+password');
+
+    if (!usuario || !(await this.passwordHasher.verify(loginDto.password, usuario.password))) {
+      throw new UnauthorizedException('Usuario o contraseña incorrectos');
+    }
+
+    return this.sinPassword(usuario);
+  }
+
+  private sinPassword(usuario: UsuarioDocument) {
+    const { password: _, ...datos } = usuario.toObject(); //Excluye la contraseña del objeto devuelto . To object() convierte en json para devolver en la promise
     return datos;
   }
 }
