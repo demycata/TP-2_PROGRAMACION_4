@@ -1,34 +1,46 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  FileTypeValidator,
+  MaxFileSizeValidator,
+  ParseFilePipe,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from './auth.service.js';
-import { CreateAuthDto } from './dto/create-auth.dto.js';
-import { UpdateAuthDto } from './dto/update-auth.dto.js';
+import { RegistroDto } from './dto/registro.dto.js';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Post('registro')
+  @UseInterceptors(FileInterceptor('imagenPerfil'))
+  registro(
+    @Body() registroDto: RegistroDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({
+            maxSize: 2 * 1024 * 1024,
+            errorMessage: 'La imagen no puede superar los 2 MB',
+          }),
+          new FileTypeValidator({
+            fileType: /^image\/(jpeg|png|webp)$/,
+            errorMessage: 'La imagen debe ser JPG, PNG o WEBP',
+          }),
+        ],
+        exceptionFactory: (error) =>
+          new BadRequestException(
+            error === 'File is required' ? 'La imagen de perfil es obligatoria' : error,
+          ),
+      }),
+    )
+    imagen: Express.Multer.File,
+  ) {
+    return this.authService.registro(registroDto, imagen);
   }
 }

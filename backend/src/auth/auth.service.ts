@@ -1,26 +1,38 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto.js';
-import { UpdateAuthDto } from './dto/update-auth.dto.js';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { PasswordHasher } from '@nestjs/authentication';
+import { Model } from 'mongoose';
+import { RegistroDto } from './dto/registro.dto.js';
+import { Usuario } from '../usuarios/entities/usuario.entity.js';
+import { CloudinaryService } from '../shared/cloudinary/cloudinary.service.js';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+  constructor(
+    @InjectModel(Usuario.name) private usuarioModel: Model<Usuario>,
+    private readonly passwordHasher: PasswordHasher,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async registro(registroDto: RegistroDto, imagen: Express.Multer.File) {
+    const existente = await this.usuarioModel.findOne({
+      $or: [{ correo: registroDto.correo }, { nombreUsuario: registroDto.nombreUsuario }],
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    if (existente) {
+      throw new ConflictException(
+        existente.correo === registroDto.correo
+          ? 'El correo ya está registrado'
+          : 'El nombre de usuario ya está en uso',
+      );
+    }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    const password = await this.passwordHasher.hash(registroDto.password);
+    const imagenPerfil = await this.cloudinaryService.subirImagen(imagen, 'perfiles');
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    const usuario = await this.usuarioModel.create({ ...registroDto, password, imagenPerfil });
+
+    const { password: _, ...datos } = usuario.toObject();
+    return datos;
   }
 }
