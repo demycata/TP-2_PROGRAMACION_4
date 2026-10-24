@@ -14,7 +14,7 @@ TP #2 de Programación IV (segundo parcial). Red social donde los estudiantes pu
 
 ### Front
 
-`cd frontend`, `npm install` y `npm start`. Levanta en `http://localhost:4200`.
+`cd frontend`, `npm install` y `npm start`. Levanta en `http://localhost:4200` y le pega al back local (`http://localhost:3000`), así que el back tiene que estar corriendo.
 
 ## Decisiones técnicas
 
@@ -51,6 +51,29 @@ TP #2 de Programación IV (segundo parcial). Red social donde los estudiantes pu
 - **Cómo se compara la contraseña**: el usuario se busca con `.select('+password')`, porque el campo tiene `select: false` y si no, no vendría. Después `passwordHasher.verify(recibida, guardada)` toma la sal que está dentro del hash guardado, encripta la contraseña recibida con esa misma sal y compara los resultados. Eso cumple el "debe encriptar la contraseña recibida para confirmar el login" de la consigna: las contraseñas nunca se desencriptan, se comparan los hashes.
 - **Mismo 401 para usuario inexistente y contraseña incorrecta** ("Usuario o contraseña incorrectos"): si los mensajes fueran distintos, cualquiera podría averiguar qué nombres de usuario existen probando el login.
 - **Devuelve todos los datos del usuario** (como pide la consigna) sin la contraseña, con el mismo `sinPassword()` del registro. El token JWT se agrega en el Sprint 3.
+
+### Front: estructura y base
+
+- **Carpetas**: `services/` (servicios que hablan con el back), `features/<área>/<componente>.component/` (una carpeta por pantalla, con `.ts`, `.html` y `.css`) y `shared/` (lo que usan varias pantallas: layouts, validadores, la función de errores).
+- **Servicios con `@Service()`** (de `@angular/core`, nuevo en Angular 22) en vez de `@Injectable`. Un `@Service` no admite inyección por constructor, así que `HttpClient` se pide con `private http = inject(HttpClient)`. Los componentes sí usan el constructor.
+- **Entornos** (`src/environments/`, generados con `ng generate environments`): `environment.development.ts` tiene `apiUrl: 'http://localhost:3000'` y `environment.ts` la URL del back en Vercel. `ng serve` usa el de desarrollo y `ng build` el de producción, porque `angular.json` reemplaza un archivo por el otro (`fileReplacements`). Los servicios importan siempre `environments/environment` y no saben en cuál están.
+- **Rutas lazy** (`loadComponent`): el código de cada pantalla se descarga recién cuando se entra a ella. `/login` y `/registro` van sueltas; `/publicaciones` y `/mi-perfil` son hijas de `LayoutComponent`, que dibuja la barra de navegación y un `<router-outlet>` donde va la pantalla. Así la barra no se repite en cada componente y no aparece en el login. `''` y cualquier ruta inexistente (`'**'`) van a `/login`. Todavía no hay guards: en el Sprint 1 la consigna pide navegación sin restricciones.
+- **Estilos**: las variables del diseño (colores, tipografías, radios) están en `:root` en `styles.css`, junto con clases globales que repiten todas las pantallas (`.input`, `.btn-primario`, `.tarjeta`, `.aviso-error`, `small.error`…). Lo propio de cada pantalla va en su `.css`, que Angular encapsula para que no afecte a otras. Además, Angular avisa si el CSS de un componente pasa de 4 kB.
+- **`.input.ng-invalid.ng-touched`**: Angular agrega solo esas clases a los inputs de un formulario reactivo, así que el borde rojo de un campo inválido sale del CSS, sin código.
+- **Favicon** propio en SVG (`public/favicon.svg`): la marca del diseño, el cuadrado verde con la "c".
+
+### Front: registro y login
+
+- **`AuthLayoutComponent`** (`shared/auth-layout.component/`): la pantalla partida en dos del diseño, con el panel de la marca a la izquierda y lo que se le pase adentro a la derecha. Login y registro lo usan como `<app-auth-layout> ...formulario... </app-auth-layout>`, y el formulario se dibuja donde está `<ng-content />` (*content projection*). En el celular el panel se oculta.
+- **Formularios reactivos** (`ReactiveFormsModule`): cada campo es un `FormControl` con sus validadores. Al enviar, `markAllAsTouched()` marca todos como tocados para que aparezcan los mensajes y, si el formulario es inválido, se corta ahí (early return). Las señales `enviado` (deshabilita el botón mientras se espera al back) y `error` (mensaje del back) controlan el estado de la pantalla.
+- **Registro en dos pasos**: el formulario son dos `FormGroup`, `credenciales` (correo, usuario, contraseña y repetir) y `datos` (nombre, apellido, nacimiento, descripción y foto), dentro de un `form` que los junta. "Siguiente" valida solo `credenciales`. Los campos del paso que no se ve se sacan del DOM con `@if`, pero sus `FormControl` siguen existiendo, así que los valores no se pierden al ir y volver. Si el back responde 409 (correo o usuario repetido), vuelve solo al paso 1 para corregirlo.
+- **Validadores propios** (`shared/validators/`): `clavesCoincidenValidator(otroControl)`, como en el ejemplo de la cátedra, compara "repetir contraseña" con la contraseña. Como solo se ejecuta cuando cambia el campo donde está puesto, el componente se suscribe a los cambios de la contraseña y lo vuelve a ejecutar (`updateValueAndValidity()`); `takeUntilDestroyed()` corta esa suscripción cuando se destruye el componente. `imagenValidator()` revisa tipo (JPG, PNG o WEBP) y tamaño (2 MB), igual que el back.
+- **Reglas de la contraseña en vivo**: `toSignal(control.valueChanges)` convierte los cambios del input en una señal, y un `computed` arma la lista de reglas con ✓/✗, que se recalcula sola en cada tecla.
+- **La foto**: un `<input type="file">` no se puede atar con `formControlName`, así que en el `(change)` se toma el archivo y se carga a mano en su `FormControl`. La vista previa usa `URL.createObjectURL(archivo)`, una URL temporal al archivo en memoria del navegador, que se libera con `revokeObjectURL` al cambiar de foto o salir de la pantalla.
+- **Envío del registro con `FormData`**: como viaja un archivo, el body no puede ser JSON. Se arma un `FormData` con todos los campos (menos `repetirPassword`, que el back rechazaría) y el archivo, y `HttpClient` lo manda como `multipart/form-data`.
+- **Errores del back** (`shared/mensaje-error.ts`): `mensajeDeError()` saca el texto de la respuesta. El `ValidationPipe` de Nest manda los mensajes en un array (se unen), las excepciones mandan un string, y status 0 significa que no se pudo conectar.
+- **Login**: solo pide usuario y contraseña obligatorios; el formato de la contraseña se controla en el registro. El botón "Mostrar / Ocultar" cambia el `type` del input entre `password` y `text`. Si sale bien, muestra "Credenciales válidas. Ingresando…" y a los 800 ms navega a `/publicaciones`. Los datos del usuario todavía no se guardan: eso llega con el token en el Sprint 3.
+- **"Cuenta creada" en el login**: el registro navega con `router.navigate(['/login'], { state: { mensaje } })`. El `state` viaja con la navegación sin aparecer en la URL, y el login lo lee en su constructor con `router.currentNavigation()`. Si se recarga la página, el mensaje no vuelve a aparecer.
 
 ## Deploy
 

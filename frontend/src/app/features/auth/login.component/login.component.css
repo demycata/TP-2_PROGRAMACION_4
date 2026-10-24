@@ -1,0 +1,41 @@
+.formulario {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.encabezado {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+h2 {
+  font-size: 26px;
+}
+
+.encabezado p {
+  font: 14px/1.5 var(--f-ui);
+}
+
+.etiqueta-password {
+  display: flex;
+  justify-content: space-between;
+}
+
+.alternar {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--c-accent);
+  font: 500 13px/1 var(--f-ui);
+  cursor: pointer;
+}
+
+.pie {
+  color: var(--c-muted);
+  font: 13px var(--f-ui);
+  text-align: center;
+}

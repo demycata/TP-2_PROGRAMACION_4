@@ -1,1 +1,155 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --c-bg: #1b1d21;  --c-surface: #22252a;  --c-surface-2: #2b2f35;  --c-card: #22252a;
+  --c-input: #1b1d21;  --c-nav-bg: #1f2125;  --c-hero: #16181b;
+  --c-border: #363a41;  --c-modal-border: #363a41;
+  --c-text: #e4e6ea;  --c-muted: #99a0aa;
+  --c-accent: #3ddc84;  --c-accent-soft: rgba(61,220,132,.12);
+  --c-primary-bg: #3ddc84;  --c-on-primary: #0b1a11;
+  --c-danger: #ff7070;  --c-danger-soft: rgba(255,112,112,.1);  --c-overlay: rgba(10,11,13,.72);
+  --c-code-bg: #16181b;  --c-code-text: #d4d4d4;  --c-kw: #c586c0;  --c-str: #ce9178;  --c-fn: #dcdcaa;  --c-cm: #6a9955;
+  --f-title: 'IBM Plex Sans', sans-serif;  --f-ui: 'IBM Plex Sans', sans-serif;
+  --f-body: 'IBM Plex Sans', sans-serif;  --f-mono: 'JetBrains Mono', monospace;
+  --w-title: 600;  --ls-title: -0.01em;
+  --r-sm: 4px;  --r-md: 6px;  --r-lg: 8px;  --r-avatar: 50%;
+  --sh-card: none;  --sh-modal: 0 24px 64px rgba(0,0,0,.55);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font: 15px/1.5 var(--f-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--f-title);
+  font-weight: var(--w-title);
+  letter-spacing: var(--ls-title);
+  line-height: 1.2;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--c-accent);
+  text-decoration: none;
+}
+
+.titulo-pagina {
+  font-size: 28px;
+}
+
+.tarjeta {
+  padding: 24px;
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-card);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo > span {
+  font: 500 13px/1 var(--f-ui);
+}
+
+.input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  background: var(--c-input);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  color: var(--c-text);
+  font: 15px var(--f-mono);
+  outline: none;
+}
+
+textarea.input {
+  height: auto;
+  min-height: 90px;
+  padding: 10px 12px;
+  font-family: var(--f-body);
+  resize: vertical;
+}
+
+.input:focus {
+  border-color: var(--c-accent);
+}
+
+.input.ng-invalid.ng-touched {
+  border-color: var(--c-danger);
+}
+
+small.error {
+  color: var(--c-danger);
+  font: 12px/1.4 var(--f-ui);
+}
+
+.btn {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: var(--r-md);
+  font: 600 15px var(--f-ui);
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-primario {
+  border: 0;
+  background: var(--c-primary-bg);
+  color: var(--c-on-primary);
+}
+
+.btn-secundario {
+  border: 1px solid var(--c-border);
+  background: transparent;
+  color: var(--c-text);
+}
+
+.aviso {
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  font: 600 13px/1.45 var(--f-ui);
+}
+
+.aviso-error {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+}
+
+.aviso-ok {
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+
+.mono {
+  font-family: var(--f-mono);
+}
+
+.muted {
+  color: var(--c-muted);
+}

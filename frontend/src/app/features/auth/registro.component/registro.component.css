@@ -1,0 +1,141 @@
+.formulario {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.encabezado {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+h2 {
+  font-size: 26px;
+}
+
+.encabezado p {
+  font: 14px/1.5 var(--f-ui);
+}
+
+.pasos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.barra {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.barra span {
+  height: 3px;
+  border-radius: var(--r-sm);
+  background: var(--c-border);
+}
+
+.barra span.activa {
+  background: var(--c-accent);
+}
+
+.seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.acciones {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.reglas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: var(--c-danger);
+  font: 12px/1 var(--f-mono);
+}
+
+.reglas .cumple {
+  color: var(--c-accent);
+}
+
+.selector-imagen {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border: 1px dashed var(--c-border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+}
+
+.selector-imagen:hover {
+  border-color: var(--c-accent);
+}
+
+.selector-imagen.invalida {
+  border-color: var(--c-danger);
+}
+
+.selector-imagen img,
+.avatar-vacio {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-avatar);
+}
+
+.selector-imagen img {
+  object-fit: cover;
+}
+
+.avatar-vacio {
+  display: grid;
+  place-items: center;
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.selector-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.selector-accion {
+  color: var(--c-accent);
+  font: 600 14px var(--f-ui);
+}
+
+.selector-imagen input {
+  display: none;
+}
+
+.pie {
+  color: var(--c-muted);
+  font: 13px var(--f-ui);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .fila {
+    grid-template-columns: 1fr;
+  }
+}

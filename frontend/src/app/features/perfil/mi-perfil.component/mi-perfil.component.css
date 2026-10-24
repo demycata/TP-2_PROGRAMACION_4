@@ -1,0 +1,12 @@
+.perfil {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.vacio {
+  color: var(--c-muted);
+  text-align: center;
+}
