@@ -10,7 +10,7 @@ import { CloudinaryService } from '../shared/cloudinary/cloudinary.service.js';
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(Usuario.name) private usuarioModel: Model<Usuario>,
+    @InjectModel(Usuario.name) private usuarioModel: Model<Usuario>, //inyeccion de dependencias para poder usar el modelo de usuario
     private readonly passwordHasher: PasswordHasher,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
@@ -28,7 +28,7 @@ export class AuthService {
       );
     }
 
-    const password = await this.passwordHasher.hash(registroDto.password);
+    const password = await this.passwordHasher.hash(registroDto.password);//encripta la contraseña antes de guardarla en la base de datos
     const imagenPerfil = await this.cloudinaryService.subirImagen(imagen, 'perfiles');
 
     const usuario = await this.usuarioModel.create({ ...registroDto, password, imagenPerfil });
@@ -42,12 +42,14 @@ export class AuthService {
       .select('+password');
 
     if (!usuario || !(await this.passwordHasher.verify(loginDto.password, usuario.password))) {
-      throw new UnauthorizedException('Usuario o contraseña incorrectos');
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
 
     return this.sinPassword(usuario);
   }
 
+
+  //funcion auxiliar para eliminar la contraseña del objeto usuario antes de devolverlo al cliente
   private sinPassword(usuario: UsuarioDocument) {
     const { password: _, ...datos } = usuario.toObject(); //Excluye la contraseña del objeto devuelto . To object() convierte en json para devolver en la promise
     return datos;

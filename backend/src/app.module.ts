@@ -10,7 +10,7 @@ import { PublicacionesModule } from './publicaciones/publicaciones.module.js';
   imports: [
     ConfigModule.forRoot(),
     AuthenticationModule.forRoot({
-      globalGuard: false,}),
+      globalGuard: false,}), //le sacamos el guard a todas las rutas
     MongooseModule.forRoot(process.env.MONGODB_URI!),
     AuthModule,
     UsuariosModule,

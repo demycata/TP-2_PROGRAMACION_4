@@ -80,5 +80,5 @@ TP #2 de Programación IV (segundo parcial). Red social donde los estudiantes pu
 Front y back en Vercel, como dos proyectos separados que importan el mismo repo:
 
 - **Back**: Root Directory `backend`, preset NestJS. Variables de entorno: `MONGODB_URI`, `FRONTEND_URL` (la URL del front desplegado) y las tres de Cloudinary. `PORT` no hace falta, lo maneja Vercel.
-- **Front**: Root Directory `frontend`, preset Angular.
+- **Front**: Root Directory `frontend`, preset Angular. Las rutas como `/login` no existen como archivo: las resuelve el router de Angular en el navegador, así que el hosting tiene que devolver `index.html` para cualquier ruta (si no, recargar la página da 404). El preset Angular de Vercel ya lo hace solo, por eso no hace falta un `vercel.json` con *rewrites*.
 - **Atlas**: en Network Access se permite `0.0.0.0/0`, porque Vercel no tiene una IP fija para agregar a la lista.

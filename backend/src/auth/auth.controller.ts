@@ -23,7 +23,7 @@ export class AuthController {
   @Post('registro')
   @UseInterceptors(FileInterceptor('imagenPerfil'))
   registro(
-    @Body() registroDto: RegistroDto,
+    @Body() registroDto: RegistroDto,//agarra el body de la peticion (el formulario del frontend) y lo convierte en un objeto del tipo RegistroDto
     @UploadedFile(
       new ParseFilePipe({
         validators: [
