@@ -6,7 +6,98 @@
   margin: 0 auto;
 }
 
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.encabezado h1 {
+  flex: 1;
+}
+
+.ordenes {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+}
+
+.ordenes button {
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--c-muted);
+  font: 500 13px var(--f-ui);
+  cursor: pointer;
+}
+
+.ordenes button.activo {
+  background: var(--c-surface);
+  color: var(--c-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.listado {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.fin .btn {
+  height: 38px;
+  font-size: 14px;
+}
+
+.centinela {
+  height: 1px;
+}
+
+.aviso-flotante {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 50;
+  transform: translateX(-50%);
+  margin: 0;
+  border: 1px solid var(--c-accent);
+  background: var(--c-surface);
+  box-shadow: var(--sh-modal);
+  white-space: nowrap;
+}
+
 .vacio {
   color: var(--c-muted);
   text-align: center;
+}
+
+.confirmacion {
+  color: var(--c-muted);
+  font: 14px/1.6 var(--f-ui);
+}
+
+.acciones-modal {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.acciones-modal .btn {
+  height: 40px;
+  font-size: 14px;
 }

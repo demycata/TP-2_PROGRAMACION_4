@@ -124,6 +124,12 @@ small.error {
   color: var(--c-on-primary);
 }
 
+.btn-peligro {
+  border: 0;
+  background: var(--c-danger);
+  color: #fff;
+}
+
 .btn-secundario {
   border: 1px solid var(--c-border);
   background: transparent;

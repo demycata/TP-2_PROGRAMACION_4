@@ -1,12 +1,115 @@
 .perfil {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
   max-width: 860px;
   margin: 0 auto;
+}
+
+.datos {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.foto {
+  width: 104px;
+  height: 104px;
+  border-radius: var(--r-avatar);
+  object-fit: cover;
+  background: var(--c-accent-soft);
+}
+
+.identidad {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+.usuario {
+  color: var(--c-accent);
+  font-size: 14px;
+}
+
+.descripcion {
+  font: 14px/1.6 var(--f-body);
+  opacity: 0.88;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px 14px;
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--c-border);
+  font: 13px/1.4 var(--f-ui);
+}
+
+dt {
+  color: var(--c-muted);
+  font: 12px/1.4 var(--f-mono);
+}
+
+dd {
+  margin: 0;
+}
+
+.correo {
+  overflow-wrap: anywhere;
+}
+
+.ultimas {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+h2 {
+  font-size: 20px;
+}
+
+.publicacion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px;
+}
+
+.meta,
+.contadores {
+  font-size: 12px;
+}
+
+h3 {
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.contadores {
+  display: flex;
+  gap: 16px;
 }
 
 .vacio {
   color: var(--c-muted);
   text-align: center;
+}
+
+.sin-sesion {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+@media (max-width: 760px) {
+  .perfil {
+    grid-template-columns: 1fr;
+  }
 }

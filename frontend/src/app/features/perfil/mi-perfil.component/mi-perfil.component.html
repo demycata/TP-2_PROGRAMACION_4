@@ -1,6 +1,47 @@
-<section class="perfil">
-  <h1 class="titulo-pagina">Mi perfil</h1>
-  <div class="tarjeta vacio">
-    <p>Todavía no hay nada para mostrar.</p>
-  </div>
-</section>
+@if (usuario(); as u) {
+  <section class="perfil">
+    <aside class="tarjeta datos">
+      <img class="foto" [src]="u.imagenPerfil" [alt]="'Foto de ' + u.nombreUsuario" />
+      <div class="identidad">
+        <h1>{{ u.nombre }} {{ u.apellido }}</h1>
+        <span class="usuario mono">&#64;{{ u.nombreUsuario }}</span>
+      </div>
+      <p class="descripcion">{{ u.descripcion }}</p>
+      <dl>
+        <dt>nombre</dt>
+        <dd>{{ u.nombre }}</dd>
+        <dt>apellido</dt>
+        <dd>{{ u.apellido }}</dd>
+        <dt>miembro desde</dt>
+        <dd class="mono">{{ u.createdAt | date: 'dd/MM/yyyy' }}</dd>
+      </dl>
+    </aside>
+
+    <div class="ultimas">
+      <h2>Últimas publicaciones</h2>
+      @if (error(); as mensaje) {
+        <p class="aviso aviso-error">{{ mensaje }}</p>
+      } @else if (cargando()) {
+        <div class="tarjeta vacio mono">Cargando publicaciones…</div>
+      } @else {
+        @for (publicacion of publicaciones(); track publicacion._id) {
+          <article class="tarjeta publicacion">
+            <span class="meta mono muted">{{ publicacion.createdAt | tiempoRelativo }}</span>
+            <h3>{{ publicacion.titulo }}</h3>
+            <div class="contadores mono muted">
+              <span>♥ {{ publicacion.cantidadMeGusta }}</span>
+            </div>
+          </article>
+        } @empty {
+          <div class="tarjeta vacio">
+            <p>Todavía no publicaste nada. <a routerLink="/publicaciones">Hacé tu primera publicación</a></p>
+          </div>
+        }
+      }
+    </div>
+  </section>
+} @else {
+  <section class="tarjeta vacio sin-sesion">
+    <p>Para ver tu perfil tenés que <a routerLink="/login">iniciar sesión</a>.</p>
+  </section>
+}

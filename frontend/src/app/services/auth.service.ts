@@ -1,6 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { Usuario } from '../core/auth/sesion.service';
+
+export interface RespuestaAuth {
+  token: string;
+  usuario: Usuario;
+}
 
 @Service()
 export class AuthService {
@@ -8,10 +14,10 @@ export class AuthService {
   private url = `${environment.apiUrl}/auth`;
 
   registro(datos: FormData) {
-    return this.http.post(`${this.url}/registro`, datos);
+    return this.http.post<RespuestaAuth>(`${this.url}/registro`, datos);
   }
 
   login(datos: { nombreUsuario: string; password: string }) {
-    return this.http.post(`${this.url}/login`, datos);
+    return this.http.post<RespuestaAuth>(`${this.url}/login`, datos);
   }
 }

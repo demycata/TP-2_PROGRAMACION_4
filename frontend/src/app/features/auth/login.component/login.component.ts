@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { SesionService } from '../../../core/auth/sesion.service';
 import { AuthLayoutComponent } from '../../../shared/auth-layout.component/auth-layout.component';
 import { mensajeDeError } from '../../../shared/mensaje-error';
 
@@ -25,6 +26,7 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
+    private sesionService: SesionService,
     private router: Router,
   ) {
     this.exito.set(this.router.currentNavigation()?.extras.state?.['mensaje'] ?? null);
@@ -45,7 +47,8 @@ export class LoginComponent {
     this.exito.set(null);
 
     this.authService.login(this.form.getRawValue()).subscribe({
-      next: () => {
+      next: ({ token, usuario }) => {
+        this.sesionService.iniciar(token, usuario);
         this.exito.set('Credenciales válidas. Ingresando…');
         setTimeout(() => this.router.navigate(['/publicaciones']), 800);
       },

@@ -1,0 +1,49 @@
+@let p = publicacion();
+<article class="tarjeta publicacion">
+  <header class="cabecera">
+    <img class="avatar" [src]="p.autor.imagenPerfil" [alt]="'Foto de ' + p.autor.nombreUsuario" />
+    <div class="autor">
+      <span class="nombre">{{ p.autor.nombre }} {{ p.autor.apellido }}</span>
+      <span class="meta mono muted" [title]="p.createdAt | date: 'dd/MM/yyyy · HH:mm'">
+        &#64;{{ p.autor.nombreUsuario }} · {{ p.createdAt | tiempoRelativo }}
+      </span>
+    </div>
+    @if (esMia()) {
+      <button class="eliminar" type="button" title="Eliminar" aria-label="Eliminar publicación" (click)="eliminar.emit(p)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+        </svg>
+      </button>
+    }
+  </header>
+
+  <div class="contenido">
+    <h3>{{ p.titulo }}</h3>
+    <p class="mensaje">{{ p.mensaje }}</p>
+  </div>
+
+  @if (p.imagen; as imagen) {
+    <img class="imagen" [src]="imagen" [alt]="p.titulo" loading="lazy" />
+  }
+
+  <footer class="acciones">
+    @let estado = meGusta();
+    <button
+      class="me-gusta mono"
+      type="button"
+      [class.dado]="estado.meGustaDado"
+      [disabled]="enviandoMeGusta()"
+      [attr.aria-pressed]="estado.meGustaDado"
+      [title]="estado.meGustaDado ? 'Quitar me gusta' : 'Me gusta'"
+      (click)="alternarMeGusta()"
+    >
+      <svg width="17" height="17" viewBox="0 0 24 24" [attr.fill]="estado.meGustaDado ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+        <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+      </svg>
+      {{ estado.cantidadMeGusta }}
+    </button>
+    @if (error(); as mensaje) {
+      <small class="error">{{ mensaje }}</small>
+    }
+  </footer>
+</article>

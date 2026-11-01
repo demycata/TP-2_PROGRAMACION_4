@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type UsuarioDocument = HydratedDocument<Usuario>;
+export type UsuarioDocument = HydratedDocument<Usuario>; //tipo de dato que representa un documento de usuario en la base de datos
 
 @Schema({ timestamps: true })
 export class Usuario {
@@ -33,4 +33,4 @@ export class Usuario {
   perfil: string;
 }
 
-export const UsuarioSchema = SchemaFactory.createForClass(Usuario);
+export const UsuarioSchema = SchemaFactory.createForClass(Usuario);//crea un esquema de Mongoose a partir de la clase Usuario, que se usará para definir la estructura de los documentos en la colección de usuarios en la base de datos

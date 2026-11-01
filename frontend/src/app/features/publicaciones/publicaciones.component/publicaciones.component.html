@@ -1,6 +1,63 @@
 <section class="publicaciones">
-  <h1 class="titulo-pagina">Publicaciones</h1>
-  <div class="tarjeta vacio">
-    <p>Todavía no hay publicaciones.</p>
+  <div class="encabezado">
+    <h1 class="titulo-pagina">Publicaciones</h1>
+    <div class="ordenes" role="group" aria-label="Ordenar publicaciones">
+      @for (opcion of ordenes; track opcion.valor) {
+        <button
+          type="button"
+          [class.activo]="orden() === opcion.valor"
+          [attr.aria-pressed]="orden() === opcion.valor"
+          (click)="ordenarPor(opcion.valor)"
+        >
+          {{ opcion.texto }}
+        </button>
+      }
+    </div>
   </div>
+
+  <app-nueva-publicacion (creada)="publicada($event)" />
+
+  <div class="listado">
+    @for (publicacion of publicaciones(); track publicacion._id) {
+      <app-publicacion [publicacion]="publicacion" (eliminar)="pedirConfirmacion($event)" />
+    }
+  </div>
+
+  @if (error(); as mensaje) {
+    <div class="fin">
+      <p class="aviso aviso-error">{{ mensaje }}</p>
+      <button class="btn btn-secundario" type="button" (click)="cargarMas()">Reintentar</button>
+    </div>
+  } @else if (cargando()) {
+    <p class="fin mono muted">Cargando publicaciones…</p>
+  } @else if (hayMas()) {
+    <div class="centinela" (appAlAparecer)="cargarMas()"></div>
+  } @else if (publicaciones().length === 0) {
+    <div class="tarjeta vacio">
+      <p>Todavía no hay publicaciones. ¡Hacé la primera!</p>
+    </div>
+  } @else {
+    <p class="fin mono muted">No hay más publicaciones.</p>
+  }
 </section>
+
+@if (aviso(); as mensaje) {
+  <p class="aviso aviso-ok aviso-flotante" role="status">{{ mensaje }}</p>
+}
+
+@if (aEliminar(); as publicacion) {
+  <app-modal titulo="¿Eliminar esta publicación?" (cerrar)="cancelarEliminacion()">
+    <p class="confirmacion">"{{ publicacion.titulo }}" se va a eliminar y no se puede deshacer.</p>
+    @if (errorEliminar(); as mensaje) {
+      <p class="aviso aviso-error">{{ mensaje }}</p>
+    }
+    <div class="acciones-modal">
+      <button class="btn btn-secundario" type="button" [disabled]="eliminando()" (click)="cancelarEliminacion()">
+        Cancelar
+      </button>
+      <button class="btn btn-peligro" type="button" [disabled]="eliminando()" (click)="confirmarEliminacion(publicacion)">
+        {{ eliminando() ? 'Eliminando…' : 'Eliminar' }}
+      </button>
+    </div>
+  </app-modal>
+}
