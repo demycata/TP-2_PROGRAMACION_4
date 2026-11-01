@@ -2,8 +2,10 @@ import { Component, Signal, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
-import { SesionService, Usuario } from '../../../core/auth/sesion.service';
-import { Publicacion, PublicacionService } from '../../../services/publicacion.service';
+import { SesionService } from '../../../core/auth/sesion.service';
+import { PublicacionService } from '../../../services/publicacion.service';
+import { Usuario } from '../../../models/usuario.model';
+import { Publicacion } from '../../../models/publicacion.model';
 import { TiempoRelativoPipe } from '../../../shared/pipes/tiempo-relativo.pipe';
 import { mensajeDeError } from '../../../shared/mensaje-error';
 

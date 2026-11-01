@@ -1,12 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Usuario } from '../core/auth/sesion.service';
-
-export interface RespuestaAuth {
-  token: string;
-  usuario: Usuario;
-}
+import { DatosLogin, RespuestaAuth } from '../models/auth.model';
 
 @Service()
 export class AuthService {
@@ -17,7 +12,7 @@ export class AuthService {
     return this.http.post<RespuestaAuth>(`${this.url}/registro`, datos);
   }
 
-  login(datos: { nombreUsuario: string; password: string }) {
+  login(datos: DatosLogin) {
     return this.http.post<RespuestaAuth>(`${this.url}/login`, datos);
   }
 }

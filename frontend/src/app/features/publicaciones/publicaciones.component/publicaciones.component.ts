@@ -1,11 +1,8 @@
 import { Component, DestroyRef, computed, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import {
-  OrdenPublicaciones,
-  Publicacion,
-  PublicacionService,
-} from '../../../services/publicacion.service';
+import { PublicacionService } from '../../../services/publicacion.service';
+import { OpcionOrden, OrdenPublicaciones, Publicacion } from '../../../models/publicacion.model';
 import { NuevaPublicacionComponent } from '../nueva-publicacion.component/nueva-publicacion.component';
 import { PublicacionComponent } from '../publicacion.component/publicacion.component';
 import { ModalComponent } from '../../../shared/modal.component/modal.component';
@@ -21,7 +18,7 @@ const POR_TANDA = 5;
   styleUrl: './publicaciones.component.css',
 })
 export class PublicacionesComponent {
-  ordenes: { valor: OrdenPublicaciones; texto: string }[] = [
+  ordenes: OpcionOrden[] = [
     { valor: 'fecha', texto: 'Más recientes' },
     { valor: 'meGusta', texto: 'Más me gusta' },
   ];

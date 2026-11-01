@@ -1,7 +1,8 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { EstadoMeGusta, Publicacion, PublicacionService } from '../../../services/publicacion.service';
+import { PublicacionService } from '../../../services/publicacion.service';
+import { EstadoMeGusta, Publicacion } from '../../../models/publicacion.model';
 import { SesionService } from '../../../core/auth/sesion.service';
 import { TiempoRelativoPipe } from '../../../shared/pipes/tiempo-relativo.pipe';
 import { mensajeDeError } from '../../../shared/mensaje-error';

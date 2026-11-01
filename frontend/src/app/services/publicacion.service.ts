@@ -1,34 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Usuario } from '../core/auth/sesion.service';
-
-export interface Publicacion {
-  _id: string;
-  titulo: string;
-  mensaje: string;
-  imagen?: string;
-  autor: Pick<Usuario, '_id' | 'nombre' | 'apellido' | 'nombreUsuario' | 'imagenPerfil'>;
-  cantidadMeGusta: number;
-  meGustaDado: boolean;
-  createdAt: string;
-}
-
-export type EstadoMeGusta = Pick<Publicacion, 'cantidadMeGusta' | 'meGustaDado'>;
-
-export type OrdenPublicaciones = 'fecha' | 'meGusta';
-
-export interface FiltrosPublicaciones {
-  orden: OrdenPublicaciones;
-  offset: number;
-  limit: number;
-  usuario?: string;
-}
-
-export interface ListadoPublicaciones {
-  publicaciones: Publicacion[];
-  total: number;
-}
+import {
+  EstadoMeGusta,
+  FiltrosPublicaciones,
+  ListadoPublicaciones,
+  Publicacion,
+} from '../models/publicacion.model';
 
 @Service()
 export class PublicacionService {

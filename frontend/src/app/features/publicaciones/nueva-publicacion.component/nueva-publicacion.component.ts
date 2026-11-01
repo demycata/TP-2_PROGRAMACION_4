@@ -2,7 +2,8 @@ import { Component, DestroyRef, ElementRef, output, signal, viewChild } from '@a
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SesionService } from '../../../core/auth/sesion.service';
-import { Publicacion, PublicacionService } from '../../../services/publicacion.service';
+import { PublicacionService } from '../../../services/publicacion.service';
+import { Publicacion } from '../../../models/publicacion.model';
 import { imagenValidator } from '../../../shared/validators/imagen.validators';
 import { mensajeDeError } from '../../../shared/mensaje-error';
 
