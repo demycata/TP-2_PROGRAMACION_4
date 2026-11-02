@@ -13,7 +13,7 @@ import { CloudinaryModule } from '../shared/cloudinary/cloudinary.module.js';
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '5m' },
+      signOptions: { expiresIn: '30s' },
     }),
     UsuariosModule,
     CloudinaryModule,
