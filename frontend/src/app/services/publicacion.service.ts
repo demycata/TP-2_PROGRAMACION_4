@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { environment } from '../../environments/environment';
 import {
+  ActividadDia,
   EstadoMeGusta,
   FiltrosPublicaciones,
   ListadoPublicaciones,
@@ -15,6 +16,14 @@ export class PublicacionService {
 
   listar(filtros: FiltrosPublicaciones) {
     return this.http.get<ListadoPublicaciones>(this.url, { params: { ...filtros } });
+  }
+
+  obtener(id: string) {
+    return this.http.get<Publicacion>(`${this.url}/${id}`);
+  }
+
+  actividad() {
+    return this.http.get<ActividadDia[]>(`${this.url}/actividad`);
   }
 
   crear(datos: FormData) {

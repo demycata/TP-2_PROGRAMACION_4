@@ -1,29 +1,42 @@
 import { Component, DestroyRef, computed, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { PublicacionService } from '../../../services/publicacion.service';
-import { OpcionOrden, OrdenPublicaciones, Publicacion } from '../../../models/publicacion.model';
+import { Etiqueta, OpcionOrden, OrdenPublicaciones, Publicacion } from '../../../models/publicacion.model';
 import { NuevaPublicacionComponent } from '../nueva-publicacion.component/nueva-publicacion.component';
 import { PublicacionComponent } from '../publicacion.component/publicacion.component';
 import { ModalComponent } from '../../../shared/modal.component/modal.component';
 import { AlAparecerDirective } from '../../../shared/directives/al-aparecer.directive';
+import { HashCortoPipe } from '../../../shared/pipes/hash-corto.pipe';
+import { ETIQUETAS } from '../../../shared/etiquetas';
 import { mensajeDeError } from '../../../shared/mensaje-error';
 
 const POR_TANDA = 5;
 
 @Component({
   selector: 'app-publicaciones',
-  imports: [NuevaPublicacionComponent, PublicacionComponent, ModalComponent, AlAparecerDirective],
+  imports: [
+    RouterLink,
+    NuevaPublicacionComponent,
+    PublicacionComponent,
+    ModalComponent,
+    AlAparecerDirective,
+    HashCortoPipe,
+  ],
   templateUrl: './publicaciones.component.html',
   styleUrl: './publicaciones.component.css',
 })
 export class PublicacionesComponent {
   ordenes: OpcionOrden[] = [
-    { valor: 'fecha', texto: 'Más recientes' },
-    { valor: 'meGusta', texto: 'Más me gusta' },
+    { valor: 'fecha', texto: '--recientes' },
+    { valor: 'meGusta', texto: '--me-gusta' },
   ];
 
+  etiquetas = ETIQUETAS;
+
   orden = signal<OrdenPublicaciones>('fecha');
+  etiqueta = signal<Etiqueta | null>(null);
   publicaciones = signal<Publicacion[]>([]);
   total = signal(0);
   cargando = signal(false);
@@ -39,10 +52,14 @@ export class PublicacionesComponent {
   private temporizadorAviso?: ReturnType<typeof setTimeout>;
 
   constructor(
+    ruta: ActivatedRoute,
     private publicacionService: PublicacionService,
     destroyRef: DestroyRef,
   ) {
-    this.reiniciar();
+    ruta.queryParamMap.subscribe((parametros) => {
+      this.etiqueta.set(parametros.get('etiqueta') as Etiqueta | null);
+      this.reiniciar();
+    });
     destroyRef.onDestroy(() => clearTimeout(this.temporizadorAviso));
   }
 
@@ -62,8 +79,14 @@ export class PublicacionesComponent {
     this.cargando.set(true);
     this.error.set(null);
 
+    const etiqueta = this.etiqueta();
     this.pedido = this.publicacionService
-      .listar({ orden: this.orden(), offset: this.publicaciones().length, limit: POR_TANDA })
+      .listar({
+        orden: this.orden(),
+        offset: this.publicaciones().length,
+        limit: POR_TANDA,
+        ...(etiqueta ? { etiqueta } : {}),
+      })
       .subscribe({
         next: ({ publicaciones, total }) => {
           // si alguien publicó mientras tanto, la lista se corre y puede volver una que ya está
@@ -84,6 +107,10 @@ export class PublicacionesComponent {
 
   publicada(publicacion: Publicacion) {
     this.mostrarAviso('Publicación creada.');
+    // el compositor publica sin etiqueta, así que no entra en el filtro activo
+    if (this.etiqueta()) {
+      return;
+    }
     if (this.orden() === 'fecha') {
       this.publicaciones.update((actuales) => [publicacion, ...actuales]);
       this.total.update((total) => total + 1);

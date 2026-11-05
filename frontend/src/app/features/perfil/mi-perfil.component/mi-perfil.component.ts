@@ -6,12 +6,14 @@ import { SesionService } from '../../../core/auth/sesion.service';
 import { PublicacionService } from '../../../services/publicacion.service';
 import { Usuario } from '../../../models/usuario.model';
 import { Publicacion } from '../../../models/publicacion.model';
+import { ActividadComponent } from '../actividad.component/actividad.component';
+import { HashCortoPipe } from '../../../shared/pipes/hash-corto.pipe';
 import { TiempoRelativoPipe } from '../../../shared/pipes/tiempo-relativo.pipe';
 import { mensajeDeError } from '../../../shared/mensaje-error';
 
 @Component({
   selector: 'app-mi-perfil',
-  imports: [DatePipe, RouterLink, TiempoRelativoPipe],
+  imports: [DatePipe, RouterLink, ActividadComponent, HashCortoPipe, TiempoRelativoPipe],
   templateUrl: './mi-perfil.component.html',
   styleUrl: './mi-perfil.component.css',
 })

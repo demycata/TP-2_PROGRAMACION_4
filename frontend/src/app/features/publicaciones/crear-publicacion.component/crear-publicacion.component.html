@@ -1,0 +1,16 @@
+<section class="crear">
+  @if (publicada(); as p) {
+    <div class="exito" role="status">
+      <span class="tilde mono">✓</span>
+      <div class="exito-texto">
+        <span class="exito-titulo">Publicaste "{{ p.titulo }}"</span>
+        <span class="mono muted">[main {{ p._id | hashCorto }}] ya aparece primera en el feed</span>
+      </div>
+      <a class="btn btn-primario ver" routerLink="/publicaciones">Ver en publicaciones</a>
+    </div>
+  }
+
+  <h1 class="titulo-pagina">Nueva publicación</h1>
+
+  <app-nueva-publicacion detallada (creada)="publicada.set($event)" />
+</section>

@@ -60,6 +60,17 @@ export class PublicacionesController {
     return this.publicacionesService.listar(listarPublicacionesDto, req.user.sub);
   }
 
+  // va antes de :id, si no "actividad" se toma como un id
+  @Get('actividad')
+  actividad(@Req() req: { user: UsuarioToken }) {
+    return this.publicacionesService.actividad(req.user.sub);
+  }
+
+  @Get(':id') //obtener una publicación por id
+  obtener(@Param() { id }: IdPublicacionDto, @Req() req: { user: UsuarioToken }) {
+    return this.publicacionesService.obtener(id, req.user.sub);
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   eliminar(@Param() { id }: IdPublicacionDto, @Req() req: { user: UsuarioToken }) {

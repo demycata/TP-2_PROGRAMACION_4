@@ -1,13 +1,45 @@
 <div class="auth">
-  <aside class="hero">
-    <div class="marca"><span class="marca-icono">c</span>commit</div>
-    <div class="hero-centro">
-      <h1>Dudas, proyectos y apuntes de la facu, en un solo lugar.</h1>
-      <pre><div><span class="acento">$</span> git commit -m <span class="str">"mi primera duda"</span></div><div class="cm">[main 3f2a9c1] mi primera duda</div><div class="cm"> 1 file changed, 12 insertions(+)</div></pre>
+  <header class="barra-titulo mono">
+    <span class="marca-icono">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+        <path d="M2 12h6M16 12h6" />
+        <circle cx="12" cy="12" r="4" />
+      </svg>
+    </span>
+    <span class="titulo">commit — {{ titulo() }}</span>
+  </header>
+
+  <div class="columnas">
+    <aside class="hero">
+      <div class="pestanas">
+        <div class="pestana mono"><span class="icono-archivo">M↓</span>bienvenida.md</div>
+      </div>
+      <div class="documento">
+        <pre class="numeros" aria-hidden="true">{{ numerosDeLinea }}</pre>
+        <div class="texto">
+          <span class="comentario mono">&lt;!-- la red social de los que programan en la facu --&gt;</span>
+          <h1><span class="numeral">#</span>Dudas, proyectos y apuntes de la facu, en un solo lugar.</h1>
+          <p class="bajada">
+            Preguntá cuando te trabás, mostrá lo que armaste y compartí los resúmenes que te salvaron el parcial.
+          </p>
+          <div class="terminal">
+            <div class="terminal-barra mono">terminal<span class="espacio"></span>bash</div>
+            <pre><div><span class="acento">~/facu $</span> git commit -m <span class="str">"mi primera duda"</span></div><div class="muted">[main <span class="hash">3f2a9c1</span>] mi primera duda</div><div class="muted"> 1 file changed, <span class="acento">12 insertions(+)</span></div><div><span class="acento">~/facu $</span> <span class="cursor"></span></div></pre>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="contenido">
+      <ng-content />
     </div>
-    <p class="pie"></p>
-  </aside>
-  <div class="contenido">
-    <ng-content />
   </div>
+
+  <footer class="estado mono">
+    <span>⎇ main</span>
+    <span>○ sin sesión</span>
+    <span class="espacio"></span>
+    <span [class.con-errores]="errores() > 0">✗ {{ errores() }}</span>
+    <span>es-AR</span>
+  </footer>
 </div>

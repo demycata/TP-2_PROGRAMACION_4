@@ -1,0 +1,14 @@
+<div class="encabezado mono">
+  <span>actividad · últimos 6 meses</span>
+  <span>{{ total() }} {{ total() === 1 ? 'aporte' : 'aportes' }}</span>
+</div>
+
+@if (error(); as mensaje) {
+  <small class="error">{{ mensaje }}</small>
+} @else {
+  <div class="mapa" role="img" [attr.aria-label]="total() + ' aportes en los últimos 6 meses'">
+    @for (celda of celdas(); track celda.fecha) {
+      <span [class]="'nivel-' + celda.nivel" [title]="celda.fecha + ': ' + celda.cantidad"></span>
+    }
+  </div>
+}

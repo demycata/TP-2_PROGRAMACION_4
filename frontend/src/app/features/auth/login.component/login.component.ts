@@ -6,6 +6,7 @@ import { AuthService } from '../../../services/auth.service';
 import { SesionService } from '../../../core/auth/sesion.service';
 import { AuthLayoutComponent } from '../../../shared/auth-layout.component/auth-layout.component';
 import { mensajeDeError } from '../../../shared/mensaje-error';
+import { Problema } from '../../../models/navegacion.model';
 
 @Component({
   selector: 'app-login',
@@ -29,7 +30,23 @@ export class LoginComponent {
     private sesionService: SesionService,
     private router: Router,
   ) {
-    this.exito.set(this.router.currentNavigation()?.extras.state?.['mensaje'] ?? null);
+    const estado = this.router.currentNavigation()?.extras.state;
+    this.exito.set(estado?.['mensaje'] ?? null);
+    this.error.set(estado?.['error'] ?? null);
+  }
+
+  get problemas(): Problema[] {
+    const { nombreUsuario, password } = this.form.controls;
+    const error = this.error();
+    return [
+      ...(nombreUsuario.touched && nombreUsuario.invalid
+        ? [{ texto: 'El nombre de usuario es obligatorio', campo: 'usuario' }]
+        : []),
+      ...(password.touched && password.invalid
+        ? [{ texto: 'La contraseña es obligatoria', campo: 'contraseña' }]
+        : []),
+      ...(error ? [{ texto: error, campo: 'login' }] : []),
+    ];
   }
 
   alternarPassword() {
@@ -49,7 +66,7 @@ export class LoginComponent {
     this.authService.login(this.form.getRawValue()).subscribe({
       next: ({ token, usuario }) => {
         this.sesionService.iniciar(token, usuario);
-        this.exito.set('Credenciales válidas. Ingresando…');
+        this.exito.set('credenciales válidas · ingresando…');
         setTimeout(() => this.router.navigate(['/publicaciones']), 800);
       },
       error: (error: HttpErrorResponse) => {

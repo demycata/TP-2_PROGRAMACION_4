@@ -1,4 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="5" fill="#3ddc84"/>
-  <text x="16" y="23" text-anchor="middle" font-family="'JetBrains Mono', Consolas, monospace" font-size="21" font-weight="700" fill="#0b1a11">c</text>
+  <rect width="32" height="32" rx="7" fill="#3ddc84"/>
+  <g transform="translate(4 4)" fill="none" stroke="#0b1a11" stroke-width="2.6" stroke-linecap="round">
+    <path d="M2 12h6M16 12h6"/>
+    <circle cx="12" cy="12" r="4"/>
+  </g>
 </svg>

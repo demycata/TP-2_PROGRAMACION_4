@@ -1,4 +1,57 @@
 <app-navbar />
-<main>
-  <router-outlet />
-</main>
+
+<div class="cuerpo" [class.con-explorador]="enFeed()">
+  <nav class="riel" aria-label="Navegación principal">
+    <a routerLink="/publicaciones" [class.activo]="enInicio()">
+      <span class="icono">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" />
+        </svg>
+      </span>
+      Inicio
+    </a>
+    <a class="nueva" routerLink="/publicaciones/nueva" routerLinkActive="activo">
+      <span class="icono">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </span>
+      Nueva
+    </a>
+    <a class="solo-celular" routerLink="/mi-perfil" routerLinkActive="activo">
+      <span class="icono">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1-4 4-6 8-6s7 2 8 6" />
+        </svg>
+      </span>
+      Perfil
+    </a>
+  </nav>
+
+  @if (enFeed()) {
+    <app-explorador [activa]="etiqueta()" />
+  }
+
+  <div class="editor">
+    <div class="pestanas">
+      <a class="pestana" routerLink="/publicaciones" [class.activa]="!pestana()">
+        <span class="icono-lista">≡</span>publicaciones.log
+      </a>
+      @if (pestana(); as actual) {
+        <span class="pestana activa"><span class="icono-archivo">M↓</span>{{ actual.archivo }}</span>
+      }
+    </div>
+    <div class="migas mono">commit › {{ miga() }}</div>
+
+    <main>
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
+<footer class="estado">
+  <span>⎇ main</span>
+  <span>{{ sesionService.usuario() ? '✓ conectado' : '○ sin sesión' }}</span>
+  <span class="espacio"></span>
+  <span>es-AR</span>
+</footer>

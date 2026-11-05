@@ -1,0 +1,19 @@
+@let estado = meGusta();
+<button
+  class="me-gusta mono"
+  type="button"
+  [class.dado]="estado.meGustaDado"
+  [class.con-texto]="conTexto()"
+  [disabled]="enviando()"
+  [attr.aria-pressed]="estado.meGustaDado"
+  [title]="estado.meGustaDado ? 'Quitar me gusta' : 'Me gusta'"
+  (click)="alternar()"
+>
+  <svg width="16" height="16" viewBox="0 0 24 24" [attr.fill]="estado.meGustaDado ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+    <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+  </svg>
+  {{ estado.cantidadMeGusta }}{{ conTexto() ? ' me gusta' : '' }}
+</button>
+@if (error(); as mensaje) {
+  <small class="error">{{ mensaje }}</small>
+}

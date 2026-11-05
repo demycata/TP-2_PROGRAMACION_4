@@ -1,0 +1,137 @@
+.detalle {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 30px 40px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.volver {
+  align-self: flex-start;
+  color: var(--c-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.volver:hover {
+  color: var(--c-text);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--c-muted);
+  font-size: 12.5px;
+  line-height: 1;
+}
+
+.hash {
+  color: var(--c-hash);
+}
+
+.separador {
+  color: var(--c-dim);
+}
+
+h1 {
+  font-size: 38px;
+  line-height: 1.12;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.autor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.autor img {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--r-avatar);
+  object-fit: cover;
+  background: var(--c-accent-soft);
+}
+
+.autor div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nombre {
+  font: 600 15px/1 var(--f-ui);
+}
+
+.usuario {
+  color: var(--c-muted);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.mensaje {
+  color: var(--c-text-2);
+  font: 17px/1.75 var(--f-body);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+.imagen {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.espacio {
+  flex: 1;
+}
+
+.compartir {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  flex: none;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--c-muted);
+  font: 500 14px var(--f-ui);
+  cursor: pointer;
+}
+
+.compartir:hover {
+  background: var(--c-surface-2);
+}
+
+@media (max-width: 760px) {
+  .detalle {
+    padding: 20px 16px 32px;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+
+  .mensaje {
+    font-size: 16px;
+  }
+}

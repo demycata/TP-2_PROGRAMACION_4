@@ -1,69 +1,192 @@
-<form class="tarjeta compositor" [formGroup]="form" (ngSubmit)="publicar()">
-  @if (sesionService.usuario(); as usuario) {
-    <img class="avatar" [src]="usuario.imagenPerfil" [alt]="'Foto de ' + usuario.nombreUsuario" />
-  }
+@if (detallada()) {
+  <form class="detallada" [formGroup]="form" (ngSubmit)="publicar()" (keydown.control.enter)="publicar()" novalidate>
+    <div class="campo">
+      <span class="etiqueta">etiqueta<span class="muted">opcional</span></span>
+      <div class="opciones-etiqueta">
+        @for (opcion of etiquetas; track opcion.valor) {
+          <button
+            type="button"
+            class="opcion"
+            [class]="'color-' + opcion.valor"
+            [class.activa]="etiqueta() === opcion.valor"
+            [attr.aria-pressed]="etiqueta() === opcion.valor"
+            [disabled]="enviado()"
+            (click)="alternarEtiqueta(opcion.valor)"
+          >
+            <span class="opcion-nombre">#{{ opcion.valor }}</span>
+            {{ opcion.descripcion }}
+          </button>
+        }
+      </div>
+    </div>
 
-  <div class="cuerpo">
-    <input
-      class="titulo"
-      formControlName="titulo"
-      placeholder="Título"
-      aria-label="Título"
-      [readonly]="enviado()"
-    />
-    <textarea
-      class="mensaje"
-      formControlName="mensaje"
-      rows="2"
-      placeholder="¿Qué querés compartir? Una duda, un proyecto, un recurso…"
-      aria-label="Mensaje"
-      [readonly]="enviado()"
-    ></textarea>
+    <label class="campo">
+      <span class="etiqueta">título<span class="muted">{{ titulo().length }}</span></span>
+      <input
+        class="input titulo-grande"
+        formControlName="titulo"
+        placeholder="Escribí una pregunta o un título claro"
+        [readonly]="enviado()"
+      />
+      @if (form.controls.titulo.touched && form.controls.titulo.invalid) {
+        <small class="error">✗ El título es obligatorio.</small>
+      }
+    </label>
+
+    <div class="campo">
+      <span class="etiqueta">cuerpo<span class="muted">{{ mensaje().length }}</span></span>
+      <div class="caja" [class.invalida]="form.controls.mensaje.touched && form.controls.mensaje.invalid">
+        <div class="modos">
+          <button type="button" [class.activo]="!mostrandoVistaPrevia()" (click)="mostrandoVistaPrevia.set(false)">Escribir</button>
+          <button type="button" [class.activo]="mostrandoVistaPrevia()" (click)="mostrandoVistaPrevia.set(true)">Vista previa</button>
+        </div>
+
+        <div class="editor" [hidden]="mostrandoVistaPrevia()">
+          <div class="espejo" aria-hidden="true">
+            @for (linea of lineas(); track $index) {
+              <div>{{ linea || ' ' }}</div>
+            }
+          </div>
+          <textarea
+            formControlName="mensaje"
+            placeholder="Contá qué intentaste, qué esperabas y qué pasó…"
+            aria-label="Cuerpo de la publicación"
+            [readonly]="enviado()"
+          ></textarea>
+        </div>
+
+        @if (mostrandoVistaPrevia()) {
+          <div class="previa">
+            @if (etiqueta(); as actual) {
+              <span class="chip-etiqueta" [class]="'color-' + actual">#{{ actual }}</span>
+            }
+            <h3>{{ titulo() || 'Sin título' }}</h3>
+            <p>{{ mensaje() || 'Todavía no escribiste nada.' }}</p>
+            @if (vistaPrevia(); as url) {
+              <img [src]="url" alt="Vista previa de la imagen" />
+            }
+          </div>
+        }
+      </div>
+      @if (form.controls.mensaje.touched && form.controls.mensaje.invalid) {
+        <small class="error">✗ El cuerpo es obligatorio.</small>
+      }
+    </div>
+
+    <label
+      class="soltar"
+      [hidden]="vistaPrevia()"
+      (dragover)="$event.preventDefault()"
+      (drop)="soltarImagen($event)"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5" />
+      </svg>
+      Arrastrá una imagen o hacé clic
+      <span class="mono formatos">JPG, PNG o WEBP · hasta 2 MB</span>
+      <input
+        #selector
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        aria-label="Agregar imagen"
+        [disabled]="enviado()"
+        (change)="seleccionarImagen($event)"
+      />
+    </label>
 
     @if (vistaPrevia(); as url) {
-      <div class="vista-previa">
+      <div class="adjunto">
         <img [src]="url" alt="Vista previa de la imagen" />
-        <button
-          class="quitar"
-          type="button"
-          title="Quitar imagen"
-          aria-label="Quitar imagen"
-          [disabled]="enviado()"
-          (click)="quitarImagen()"
-        >
-          ✕
-        </button>
+        <span class="adjunto-nombre">{{ nombreImagen() }}</span>
+        <button type="button" title="Quitar imagen" aria-label="Quitar imagen" [disabled]="enviado()" (click)="quitarImagen()">✕</button>
       </div>
     }
 
     @if (form.controls.imagen.hasError('tipoImagen')) {
-      <small class="error">La imagen debe ser JPG, PNG o WEBP.</small>
+      <small class="error">✗ La imagen debe ser JPG, PNG o WEBP.</small>
     } @else if (form.controls.imagen.hasError('tamanioImagen')) {
-      <small class="error">La imagen no puede superar los 2 MB.</small>
+      <small class="error">✗ La imagen no puede superar los 2 MB.</small>
     }
     @if (error(); as mensaje) {
-      <p class="aviso aviso-error">{{ mensaje }}</p>
+      <p class="aviso aviso-error" role="alert">{{ mensaje }}</p>
     }
 
-    <div class="barra">
-      <label class="adjuntar" title="Agregar imagen (JPG, PNG o WEBP, máx. 2 MB)">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <circle cx="9" cy="10" r="2" />
-          <path d="m21 16-5-5-9 9" />
-        </svg>
-        <input
-          #selector
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          aria-label="Agregar imagen"
-          [disabled]="enviado()"
-          (change)="seleccionarImagen($event)"
-        />
-      </label>
-      <button class="btn btn-primario publicar" type="submit" [disabled]="form.invalid || enviado()">
+    <div class="pie">
+      <span class="mono muted atajo">Ctrl ↵ para publicar</span>
+      <button class="btn btn-secundario" type="button" [disabled]="enviado()" (click)="descartar()">Descartar</button>
+      <button class="btn btn-primario" type="submit" [disabled]="enviado()">
         {{ enviado() ? 'Publicando…' : 'Publicar' }}
       </button>
     </div>
-  </div>
-</form>
+  </form>
+} @else {
+  <form class="tarjeta compositor" [formGroup]="form" (ngSubmit)="publicar()">
+    @if (sesionService.usuario(); as usuario) {
+      <img class="avatar" [src]="usuario.imagenPerfil" [alt]="'Foto de ' + usuario.nombreUsuario" />
+    }
+
+    <div class="cuerpo">
+      <input
+        class="titulo"
+        formControlName="titulo"
+        placeholder="Título"
+        aria-label="Título"
+        [readonly]="enviado()"
+      />
+      <textarea
+        class="mensaje"
+        formControlName="mensaje"
+        rows="2"
+        placeholder="¿Qué querés compartir? Una duda, un proyecto, un recurso…"
+        aria-label="Mensaje"
+        [readonly]="enviado()"
+      ></textarea>
+
+      @if (vistaPrevia(); as url) {
+        <div class="vista-previa">
+          <img [src]="url" alt="Vista previa de la imagen" />
+          <button
+            class="quitar"
+            type="button"
+            title="Quitar imagen"
+            aria-label="Quitar imagen"
+            [disabled]="enviado()"
+            (click)="quitarImagen()"
+          >
+            ✕
+          </button>
+        </div>
+      }
+
+      @if (form.controls.imagen.hasError('tipoImagen')) {
+        <small class="error">La imagen debe ser JPG, PNG o WEBP.</small>
+      } @else if (form.controls.imagen.hasError('tamanioImagen')) {
+        <small class="error">La imagen no puede superar los 2 MB.</small>
+      }
+      @if (error(); as mensaje) {
+        <p class="aviso aviso-error">{{ mensaje }}</p>
+      }
+
+      <div class="barra">
+        <label class="adjuntar" title="Agregar imagen (JPG, PNG o WEBP, máx. 2 MB)">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <circle cx="9" cy="10" r="2" />
+            <path d="m21 16-5-5-9 9" />
+          </svg>
+          <input
+            #selector
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            aria-label="Agregar imagen"
+            [disabled]="enviado()"
+            (change)="seleccionarImagen($event)"
+          />
+        </label>
+        <button class="btn btn-primario publicar" type="submit" [disabled]="form.invalid || enviado()">
+          {{ enviado() ? 'Publicando…' : 'Publicar' }}
+        </button>
+      </div>
+    </div>
+  </form>
+}

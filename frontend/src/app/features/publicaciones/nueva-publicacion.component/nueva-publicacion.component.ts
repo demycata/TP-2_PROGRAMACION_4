@@ -1,10 +1,22 @@
-import { Component, DestroyRef, ElementRef, output, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  booleanAttribute,
+  computed,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SesionService } from '../../../core/auth/sesion.service';
 import { PublicacionService } from '../../../services/publicacion.service';
-import { Publicacion } from '../../../models/publicacion.model';
+import { Etiqueta, Publicacion } from '../../../models/publicacion.model';
 import { imagenValidator } from '../../../shared/validators/imagen.validators';
+import { ETIQUETAS } from '../../../shared/etiquetas';
 import { mensajeDeError } from '../../../shared/mensaje-error';
 
 @Component({
@@ -14,11 +26,16 @@ import { mensajeDeError } from '../../../shared/mensaje-error';
   styleUrl: './nueva-publicacion.component.css',
 })
 export class NuevaPublicacionComponent {
+  detallada = input(false, { transform: booleanAttribute });
   creada = output<Publicacion>();
+
+  etiquetas = ETIQUETAS;
 
   enviado = signal(false);
   error = signal<string | null>(null);
   vistaPrevia = signal<string | null>(null);
+  nombreImagen = signal<string | null>(null);
+  mostrandoVistaPrevia = signal(false);
 
   private selector = viewChild.required<ElementRef<HTMLInputElement>>('selector');
 
@@ -26,7 +43,13 @@ export class NuevaPublicacionComponent {
     titulo: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     mensaje: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     imagen: new FormControl<File | null>(null, { validators: [imagenValidator()] }),
+    etiqueta: new FormControl<Etiqueta | null>(null),
   });
+
+  titulo = toSignal(this.form.controls.titulo.valueChanges, { initialValue: '' });
+  mensaje = toSignal(this.form.controls.mensaje.valueChanges, { initialValue: '' });
+  etiqueta = toSignal(this.form.controls.etiqueta.valueChanges, { initialValue: null });
+  lineas = computed(() => this.mensaje().split('\n'));
 
   constructor(
     protected sesionService: SesionService,
@@ -36,14 +59,20 @@ export class NuevaPublicacionComponent {
     destroyRef.onDestroy(() => this.liberarVistaPrevia());
   }
 
-  seleccionarImagen(evento: Event) {
-    const archivo = (evento.target as HTMLInputElement).files?.[0] ?? null;
-    const control = this.form.controls.imagen;
-    control.setValue(archivo);
-    control.markAsTouched();
+  alternarEtiqueta(valor: Etiqueta) {
+    const control = this.form.controls.etiqueta;
+    control.setValue(control.value === valor ? null : valor);
+  }
 
-    this.liberarVistaPrevia();
-    this.vistaPrevia.set(archivo && control.valid ? URL.createObjectURL(archivo) : null);
+  seleccionarImagen(evento: Event) {
+    this.usarImagen((evento.target as HTMLInputElement).files?.[0] ?? null);
+  }
+
+  soltarImagen(evento: DragEvent) {
+    evento.preventDefault();
+    if (!this.enviado()) {
+      this.usarImagen(evento.dataTransfer?.files[0] ?? null);
+    }
   }
 
   quitarImagen() {
@@ -51,29 +80,39 @@ export class NuevaPublicacionComponent {
     this.form.controls.imagen.setValue(null);
     this.liberarVistaPrevia();
     this.vistaPrevia.set(null);
+    this.nombreImagen.set(null);
+  }
+
+  descartar() {
+    this.form.reset();
+    this.quitarImagen();
+    this.mostrandoVistaPrevia.set(false);
+    this.error.set(null);
   }
 
   publicar() {
     this.form.markAllAsTouched();
-    if (this.form.invalid) {
+    if (this.form.invalid || this.enviado()) {
       return;
     }
 
     this.enviado.set(true);
     this.error.set(null);
 
-    const { titulo, mensaje, imagen } = this.form.getRawValue();
+    const { titulo, mensaje, imagen, etiqueta } = this.form.getRawValue();
     const formData = new FormData();
     formData.append('titulo', titulo);
     formData.append('mensaje', mensaje);
     if (imagen) {
       formData.append('imagen', imagen);
     }
+    if (etiqueta) {
+      formData.append('etiqueta', etiqueta);
+    }
 
     this.publicacionService.crear(formData).subscribe({
       next: (publicacion) => {
-        this.form.reset();
-        this.quitarImagen();
+        this.descartar();
         this.enviado.set(false);
         this.creada.emit(publicacion);
       },
@@ -82,6 +121,17 @@ export class NuevaPublicacionComponent {
         this.enviado.set(false);
       },
     });
+  }
+
+  private usarImagen(archivo: File | null) {
+    const control = this.form.controls.imagen;
+    control.setValue(archivo);
+    control.markAsTouched();
+
+    this.liberarVistaPrevia();
+    const valida = archivo && control.valid;
+    this.vistaPrevia.set(valida ? URL.createObjectURL(archivo) : null);
+    this.nombreImagen.set(valida ? archivo.name : null);
   }
 
   private liberarVistaPrevia() {

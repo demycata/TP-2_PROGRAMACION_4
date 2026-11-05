@@ -1,47 +1,56 @@
 @if (usuario(); as u) {
   <section class="perfil">
-    <aside class="tarjeta datos">
+    <header class="cabecera">
       <img class="foto" [src]="u.imagenPerfil" [alt]="'Foto de ' + u.nombreUsuario" />
       <div class="identidad">
         <h1>{{ u.nombre }} {{ u.apellido }}</h1>
         <span class="usuario mono">&#64;{{ u.nombreUsuario }}</span>
+        <p class="descripcion">{{ u.descripcion }}</p>
       </div>
-      <p class="descripcion">{{ u.descripcion }}</p>
-      <dl>
-        <dt>nombre</dt>
-        <dd>{{ u.nombre }}</dd>
-        <dt>apellido</dt>
-        <dd>{{ u.apellido }}</dd>
-        <dt>miembro desde</dt>
-        <dd class="mono">{{ u.createdAt | date: 'dd/MM/yyyy' }}</dd>
-      </dl>
-    </aside>
+    </header>
 
-    <div class="ultimas">
-      <h2>Últimas publicaciones</h2>
-      @if (error(); as mensaje) {
-        <p class="aviso aviso-error">{{ mensaje }}</p>
-      } @else if (cargando()) {
-        <div class="tarjeta vacio mono">Cargando publicaciones…</div>
-      } @else {
-        @for (publicacion of publicaciones(); track publicacion._id) {
-          <article class="tarjeta publicacion">
-            <span class="meta mono muted">{{ publicacion.createdAt | tiempoRelativo }}</span>
-            <h3>{{ publicacion.titulo }}</h3>
-            <div class="contadores mono muted">
-              <span>♥ {{ publicacion.cantidadMeGusta }}</span>
-            </div>
-          </article>
-        } @empty {
-          <div class="tarjeta vacio">
-            <p>Todavía no publicaste nada. <a routerLink="/publicaciones">Hacé tu primera publicación</a></p>
+    <div class="columnas">
+      <aside class="lateral">
+        <div class="bloque">
+          <div class="bloque-titulo mono">datos personales</div>
+          <pre class="mono"><div class="dim">---</div><div><span class="clave">nombre</span>: <span class="valor">{{ u.nombre }}</span></div><div><span class="clave">apellido</span>: <span class="valor">{{ u.apellido }}</span></div><div><span class="clave">miembro_desde</span>: <span class="numero">{{ u.createdAt | date: 'dd/MM/yyyy' }}</span></div><div class="dim">---</div></pre>
+        </div>
+        <app-actividad />
+      </aside>
+
+      <div class="ultimas">
+        <h2>Últimas publicaciones</h2>
+        @if (error(); as mensaje) {
+          <p class="aviso aviso-error">{{ mensaje }}</p>
+        } @else if (cargando()) {
+          <p class="mono muted estado">Cargando publicaciones…</p>
+        } @else {
+          <div class="lista">
+            @for (publicacion of publicaciones(); track publicacion._id) {
+              <a class="publicacion" [routerLink]="['/publicaciones', publicacion._id]">
+                <span class="titulo">{{ publicacion.titulo }}</span>
+                <span class="meta mono">
+                  @if (publicacion.etiqueta; as etiqueta) {
+                    <span class="etiqueta" [class]="'color-' + etiqueta">#{{ etiqueta }}</span>
+                  }
+                  <span class="hash">{{ publicacion._id | hashCorto }}</span>
+                  <span>♥ {{ publicacion.cantidadMeGusta }}</span>
+                  <span class="espacio"></span>
+                  <span>{{ publicacion.createdAt | tiempoRelativo }}</span>
+                </span>
+              </a>
+            } @empty {
+              <p class="vacio">
+                Todavía no publicaste nada. <a routerLink="/publicaciones/nueva">Hacé tu primera publicación</a>
+              </p>
+            }
           </div>
         }
-      }
+      </div>
     </div>
   </section>
 } @else {
-  <section class="tarjeta vacio sin-sesion">
+  <section class="tarjeta sin-sesion">
     <p>Para ver tu perfil tenés que <a routerLink="/login">iniciar sesión</a>.</p>
   </section>
 }

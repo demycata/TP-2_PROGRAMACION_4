@@ -9,15 +9,19 @@
 .encabezado {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+}
+
+.comentario {
+  color: var(--c-cm);
+  font-size: 12px;
+  line-height: 1;
 }
 
 h2 {
-  font-size: 26px;
-}
-
-.encabezado p {
-  font: 14px/1.5 var(--f-ui);
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
 }
 
 .pasos {
@@ -36,7 +40,7 @@ h2 {
 .barra span {
   height: 3px;
   border-radius: var(--r-sm);
-  background: var(--c-border);
+  background: var(--c-line);
 }
 
 .barra span.activa {
@@ -78,7 +82,7 @@ h2 {
   align-items: center;
   gap: 14px;
   padding: 12px;
-  border: 1px dashed var(--c-border);
+  border: 1px dashed var(--c-line);
   border-radius: var(--r-md);
   cursor: pointer;
 }

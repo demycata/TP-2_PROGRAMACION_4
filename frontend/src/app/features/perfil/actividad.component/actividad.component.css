@@ -1,0 +1,47 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--c-muted);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.mapa {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, 9px);
+  grid-auto-columns: 9px;
+  gap: 3px;
+  overflow-x: auto;
+}
+
+.mapa span {
+  border-radius: 2px;
+}
+
+.nivel-0 {
+  background: var(--c-surface-2);
+}
+
+.nivel-1 {
+  background: color-mix(in oklab, var(--c-accent) 25%, var(--c-surface-2));
+}
+
+.nivel-2 {
+  background: color-mix(in oklab, var(--c-accent) 50%, var(--c-surface-2));
+}
+
+.nivel-3 {
+  background: color-mix(in oklab, var(--c-accent) 75%, var(--c-surface-2));
+}
+
+.nivel-4 {
+  background: var(--c-accent);
+}

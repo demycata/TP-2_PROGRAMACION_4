@@ -1,10 +1,17 @@
+:host {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: block;
+}
+
 .navbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 28px;
-  height: 60px;
-  padding: 0 28px;
-  background: var(--c-nav-bg);
+  height: 42px;
+  padding: 0 14px;
+  background: var(--c-shell);
   border-bottom: 1px solid var(--c-border);
 }
 
@@ -12,46 +19,70 @@
   display: flex;
   align-items: center;
   gap: 9px;
+  justify-self: start;
   color: var(--c-text);
-  font: var(--w-title) 18px/1 var(--f-title);
-  letter-spacing: var(--ls-title);
+  font: 600 20px/1 var(--f-ui);
 }
 
 .marca-icono {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--r-sm);
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
   background: var(--c-primary-bg);
   color: var(--c-on-primary);
-  font: 700 12px/1 var(--f-mono);
 }
 
-nav {
+.perfil {
   display: flex;
-  gap: 4px;
-  font: 500 14px/1 var(--f-ui);
-}
-
-nav a {
-  padding: 8px 12px;
-  border-radius: var(--r-sm);
+  align-items: center;
+  gap: 9px;
+  max-width: 320px;
+  height: 32px;
+  padding: 0 12px 0 4px;
+  border: 1px solid var(--c-line);
+  border-radius: 16px;
   color: var(--c-muted);
+  font: 500 13px/1 var(--f-mono);
 }
 
-nav a:hover {
+.perfil:hover {
+  background: var(--c-surface);
   color: var(--c-text);
 }
 
-nav a.activo {
-  background: var(--c-surface-2);
+.perfil.activo {
+  border-color: var(--c-accent);
   color: var(--c-text);
 }
 
-@media (max-width: 600px) {
+.perfil img {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--r-avatar);
+  object-fit: cover;
+  background: var(--c-accent-soft);
+}
+
+.perfil span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
   .navbar {
-    gap: 12px;
-    padding: 0 16px;
+    display: flex;
+    height: 56px;
+  }
+
+  .marca {
+    font-size: 17px;
+  }
+
+  .perfil {
+    display: none;
   }
 }

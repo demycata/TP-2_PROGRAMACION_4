@@ -1,7 +1,18 @@
 <header class="navbar">
-  <a class="marca" routerLink="/publicaciones"><span class="marca-icono">c</span>commit</a>
-  <nav>
-    <a routerLink="/publicaciones" routerLinkActive="activo">Publicaciones</a>
-    <a routerLink="/mi-perfil" routerLinkActive="activo">Mi perfil</a>
-  </nav>
+  <a class="marca" routerLink="/publicaciones">
+    <span class="marca-icono">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+        <path d="M2 12h6M16 12h6" />
+        <circle cx="12" cy="12" r="4" />
+      </svg>
+    </span>
+    commit
+  </a>
+
+  @if (sesionService.usuario(); as usuario) {
+    <a class="perfil" routerLink="/mi-perfil" routerLinkActive="activo" title="Mi perfil">
+      <img [src]="usuario.imagenPerfil" [alt]="'Foto de ' + usuario.nombreUsuario" />
+      <span>&#64;{{ usuario.nombreUsuario }}</span>
+    </a>
+  }
 </header>

@@ -1,0 +1,61 @@
+.crear {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 30px 40px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.exito {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in oklab, var(--c-accent) 45%, transparent);
+  border-radius: var(--r-lg);
+  background: var(--c-accent-soft);
+}
+
+.tilde {
+  color: var(--c-accent);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.exito-texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+.exito-titulo {
+  font: 600 14.5px/1.3 var(--f-ui);
+}
+
+.ver {
+  display: flex;
+  align-items: center;
+  flex: none;
+  height: 34px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .crear {
+    padding: 20px 16px 32px;
+  }
+
+  .titulo-pagina {
+    font-size: 26px;
+  }
+
+  .exito {
+    flex-wrap: wrap;
+  }
+}

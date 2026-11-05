@@ -3,6 +3,8 @@ import mongoose, { HydratedDocument, Types } from 'mongoose';
 
 export type PublicacionDocument = HydratedDocument<Publicacion>;
 
+export const ETIQUETAS = ['duda', 'proyecto', 'recurso', 'novedad'] as const;
+
 // sin collection, Mongoose pluraliza en inglés y la llama "publicacions"
 @Schema({ timestamps: true, collection: 'publicaciones' })
 export class Publicacion {
@@ -14,6 +16,9 @@ export class Publicacion {
 
   @Prop()
   imagen?: string;
+
+  @Prop({ type: String, enum: ETIQUETAS })
+  etiqueta?: (typeof ETIQUETAS)[number];
 
   // Schema.Types.ObjectId es el tipo para el schema; con Types.ObjectId (la clase del valor) se guarda como string
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true })

@@ -1,0 +1,23 @@
+<nav aria-label="Filtrar publicaciones por etiqueta">
+  <div class="titulo mono">EXPLORADOR</div>
+
+  <div class="grupo mono">▾ commit</div>
+  <a routerLink="/publicaciones" [class.activo]="!activa()">
+    <span class="punto"></span>
+    todas
+  </a>
+
+  <div class="grupo mono">▾ etiquetas</div>
+  @for (opcion of etiquetas; track opcion.valor) {
+    <a
+      class="mono"
+      routerLink="/publicaciones"
+      [queryParams]="{ etiqueta: opcion.valor }"
+      [class]="'color-' + opcion.valor"
+      [class.activo]="activa() === opcion.valor"
+    >
+      <span class="numeral">#</span>
+      {{ opcion.valor }}
+    </a>
+  }
+</nav>

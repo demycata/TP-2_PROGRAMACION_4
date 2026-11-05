@@ -1,0 +1,74 @@
+:host {
+  position: sticky;
+  top: 42px;
+  align-self: start;
+  height: calc(100dvh - 66px);
+  padding: 12px 0;
+  background: var(--c-nav-bg);
+  border-right: 1px solid var(--c-border);
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.titulo {
+  padding: 2px 16px 10px;
+  color: var(--c-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.grupo {
+  padding: 6px 16px;
+  color: var(--c-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+a + .grupo {
+  margin-top: 10px;
+}
+
+a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 30px;
+  padding: 0 14px 0 30px;
+  color: var(--c-muted);
+  font-size: 13px;
+  line-height: 1;
+}
+
+a:hover,
+a.activo {
+  color: var(--c-text);
+}
+
+a.activo {
+  background: var(--c-surface-2);
+}
+
+.punto {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-avatar);
+  background: var(--c-accent);
+}
+
+.numeral {
+  color: var(--c-etiqueta);
+  font-weight: 700;
+}
+
+@media (max-width: 1000px) {
+  :host {
+    display: none;
+  }
+}

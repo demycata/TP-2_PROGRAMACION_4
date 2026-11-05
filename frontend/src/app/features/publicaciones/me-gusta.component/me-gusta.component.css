@@ -1,0 +1,43 @@
+:host {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.me-gusta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  flex: none;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--c-muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.me-gusta:hover {
+  background: var(--c-surface-2);
+}
+
+.me-gusta:disabled {
+  cursor: default;
+}
+
+.me-gusta.dado {
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+
+.me-gusta.con-texto {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+}

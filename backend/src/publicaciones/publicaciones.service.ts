@@ -38,10 +38,11 @@ export class PublicacionesService {
     return { ...creada, cantidadMeGusta: 0, meGustaDado: false };
   }
 
-  async listar({ orden, usuario, offset, limit }: ListarPublicacionesDto, usuarioActual: string) {
+  async listar({ orden, usuario, etiqueta, offset, limit }: ListarPublicacionesDto, usuarioActual: string) {
     const filtro = {
       eliminada: false,
       ...(usuario ? { autor: new Types.ObjectId(usuario) } : {}),
+      ...(etiqueta ? { etiqueta } : {}),
     };
     const ordenamiento: Record<string, 1 | -1> =
       orden === 'meGusta'
@@ -75,6 +76,67 @@ export class PublicacionesService {
       }),
       total,
     };
+  }
+
+  async obtener(id: string, usuarioActual: string) {
+    const [publicacion] = await this.publicacionModel.aggregate([
+      { $match: { _id: new Types.ObjectId(id), eliminada: false } },
+      {
+        $addFields: {
+          cantidadMeGusta: { $size: { $ifNull: ['$meGusta', []] } },
+          meGustaDado: {
+            $in: [new Types.ObjectId(usuarioActual), { $ifNull: ['$meGusta.usuario', []] }],
+          },
+        },
+      },
+      { $project: { meGusta: 0, eliminada: 0, __v: 0 } },
+    ]);
+
+    if (!publicacion) {
+      throw new NotFoundException('La publicación no existe');
+    }
+
+    return this.publicacionModel.populate(publicacion, {
+      path: 'autor',
+      select: 'nombre apellido nombreUsuario imagenPerfil',
+    });
+  }
+
+  // aportes por día de los últimos 182 días (26 semanas): publicaciones hechas y me gusta dados
+  async actividad(usuarioActual: string) {
+    const usuario = new Types.ObjectId(usuarioActual);
+    const desde = new Date(Date.now() - 182 * 24 * 60 * 60 * 1000);
+    const zonaHoraria = 'America/Argentina/Buenos_Aires';
+
+    const [publicaciones, meGusta] = await Promise.all([
+      this.publicacionModel.aggregate<{ _id: string; cantidad: number }>([
+        { $match: { autor: usuario, eliminada: false, createdAt: { $gte: desde } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: zonaHoraria } },
+            cantidad: { $sum: 1 },
+          },
+        },
+      ]),
+      this.publicacionModel.aggregate<{ _id: string; cantidad: number }>([
+        { $match: { eliminada: false, 'meGusta.usuario': usuario } },
+        { $unwind: '$meGusta' },
+        { $match: { 'meGusta.usuario': usuario, 'meGusta.fecha': { $gte: desde } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$meGusta.fecha', timezone: zonaHoraria } },
+            cantidad: { $sum: 1 },
+          },
+        },
+      ]),
+    ]);
+
+    const porDia = new Map<string, number>();
+    for (const { _id, cantidad } of [...publicaciones, ...meGusta]) {
+      porDia.set(_id, (porDia.get(_id) ?? 0) + cantidad);
+    }
+
+    return [...porDia].map(([fecha, cantidad]) => ({ fecha, cantidad }));
   }
 
   // el filtro y el $push van en la misma operación, así dos pedidos simultáneos no pueden sumar dos me gusta del mismo usuario

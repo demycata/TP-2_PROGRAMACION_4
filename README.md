@@ -81,6 +81,13 @@ publicaciones: baja lógica (`DELETE /publicaciones/:id`)
 - **Permisos**: se busca la publicación (404 si no existe) y se compara su `autor` con el `sub` del token. Si no es el autor y el `perfil` del token no es `administrador`, da **403 Forbidden**: el usuario está identificado (no es un 401), pero no tiene permiso para esa acción. `autor` es un ObjectId, por eso se compara con `.toString()`.
 - **204 No Content** (`@HttpCode(HttpStatus.NO_CONTENT)`): la baja salió bien y no hay nada para devolver.
 
+publicaciones: etiquetas
+
+- **Opcionales**: `etiqueta` puede ser `duda`, `proyecto`, `recurso` o `novedad`, o no venir. En el DTO va `@IsOptional()` + `@IsIn(ETIQUETAS)`: si no viene, se saltea la validación; si viene con otro valor, da 400.
+- **Una sola lista**: `ETIQUETAS` se exporta desde la entidad y la usan el `enum` del schema y los dos DTOs, para que no queden desparejos. Con `as const` el tipo sale de la misma lista (`(typeof ETIQUETAS)[number]`). En el `@Prop` hay que indicar `type: String`, porque Mongoose no puede deducir el tipo de una unión.
+- **El filtro es un query param** (`GET /publicaciones?etiqueta=duda`) que se suma al `$match`, igual que `usuario`. El `countDocuments` usa el mismo filtro, así `total` sirve para el scroll infinito.
+- **Las publicaciones viejas no se tocaron**: quedan sin el campo, aparecen en el listado general y no aparecen al filtrar. A diferencia de `eliminada`, acá no hizo falta un `updateMany`, porque el filtro se aplica solo cuando viene una etiqueta.
+
 
 
 ### Front: 
@@ -88,7 +95,7 @@ estructura
 
 - **Carpetas**: `services/` (servicios que hablan con el back), `features/<área>/<componente>.component/` (una carpeta por pantalla, con `.ts`, `.html` y `.css`) y `shared/` (lo que usan varias pantallas: layouts, validadores, la función de errores).
 - **Servicios con `@Service()`** (de `@angular/core`, nuevo en Angular 22) en vez de `@Injectable`. Los componentes sí usan el constructor.
-- **Rutas lazy** (`loadComponent`): el código de cada pantalla se descarga recién cuando se entra a ella. `/login` y `/registro` van sueltas; `/publicaciones` y `/mi-perfil` son hijas de `LayoutComponent`, que dibuja la barra de navegación y un `<router-outlet>` donde va la pantalla. Así la barra no se repite en cada componente y no aparece en el login. `''` y cualquier ruta inexistente (`'**'`) van a `/login`. 
+- **Rutas lazy** (`loadComponent`): el código de cada pantalla se descarga recién cuando se entra a ella. `/login` y `/registro` van sueltas; `/publicaciones`, `/publicaciones/nueva`, `/publicaciones/:id` y `/mi-perfil` son hijas de `LayoutComponent`, que dibuja el marco de la app y un `<router-outlet>` donde va la pantalla. Así la barra no se repite en cada componente y no aparece en el login. `''` y cualquier ruta inexistente (`'**'`) van a `/login`. 
 
 registro y login
 
@@ -106,7 +113,7 @@ sesión
 nueva publicación
 
 - **`ModalComponent` (`shared/modal.component/`)**: un modal genérico (fondo oscuro con blur, título y ✕) que recibe su contenido con `<ng-content />`, igual que `AuthLayoutComponent`. Tiene un `input.required<string>()` para el título y un `output()` llamado `cerrar`, que se emite con la ✕ o con Escape (`host: { '(document:keydown.escape)': ... }` escucha la tecla en todo el documento). El modal no decide cuándo cerrarse: avisa, y el que lo usa decide (por ejemplo, el de eliminar no se cierra mientras está borrando). Se usa para confirmar la baja y se va a usar para el aviso de sesión del Sprint 3.
-- **`NuevaPublicacionComponent`** es una tarjeta fija arriba del listado, al estilo del "¿Qué está pasando?" de X (decisión del usuario; el mockup tenía un botón "Nueva publicación" en el encabezado). Tiene la foto del usuario, el título y el mensaje en campos sin borde, y abajo el ícono para adjuntar una imagen y "Publicar". La tarjeta se marca en verde mientras se escribe (`:focus-within`, que se activa cuando cualquier elemento de adentro tiene el foco). El mensaje crece con el texto gracias a `field-sizing: content` (Chrome y Edge; en el resto queda de 2 líneas con scroll).
+- **`NuevaPublicacionComponent`** es una tarjeta fija arriba del listado, al estilo del "¿Qué está pasando?" de X (decisión del usuario; en el mockup solo se publica desde la pantalla "Nueva"). Tiene la foto del usuario, el título y el mensaje en campos sin borde, y abajo el ícono para adjuntar una imagen y "Publicar". La tarjeta se marca en verde mientras se escribe (`:focus-within`, que se activa cuando cualquier elemento de adentro tiene el foco). El mensaje crece con el texto gracias a `field-sizing: content` (Chrome y Edge; en el resto queda de 2 líneas con scroll).
 - **"Publicar" queda deshabilitado mientras falte el título o el mensaje** (`[disabled]="form.invalid || enviado()"`), como "Postear" en X, así que no hace falta mostrar los errores de campo obligatorio. Los errores de la imagen y los del back sí se muestran.
 - **Al publicar**, la tarjeta se vacía (`form.reset()` + quitar la imagen) y emite `creada` (`output<Publicacion>()`). El feed la agrega arriba del listado (si está ordenado por fecha; si no, lo recarga) y muestra "Publicación creada.". Con `input()`/`output()` los componentes se comunican sin servicios de por medio: el padre le pasa datos al hijo y el hijo le avisa al padre que pasó algo.
 - **`viewChild.required('selector')`** da acceso al `<input type="file">` marcado con `#selector` en el template, para poder limpiarlo desde el código al quitar la imagen o después de publicar.
@@ -127,7 +134,7 @@ listado de publicaciones
 
 me gusta
 
-- **La tarjeta maneja su propio me gusta**: le pega al back directamente desde `PublicacionComponent` y actualiza solo su contador, sin recargar el listado.
+- **`MeGustaComponent` maneja su propio me gusta**: le pega al back directamente y actualiza solo su contador, sin recargar el listado. Está separado de la tarjeta porque lo usan el feed y el detalle (`conTexto` agrega "me gusta" al lado del número).
 - **`linkedSignal`**: la publicación llega como `input()`, que es de solo lectura, pero el contador tiene que poder cambiar. `linkedSignal(() => ({ cantidadMeGusta, meGustaDado }))` crea una señal que se puede modificar con `set()` y que arranca con lo que vino en el input. Si el input cambia (por ejemplo, otra página del listado), la vuelve a copiar.
 - **Sin actualización "optimista"**: el contador cambia cuando el back confirma, no antes. Mientras tanto el botón queda deshabilitado, así un doble clic no manda dos pedidos. Si el back responde con error, se muestra el mensaje al lado del botón.
 - **Ordenado por "Más me gusta", la lista no se reordena al dar me gusta**: el orden se aplica cuando se carga la página, así la tarjeta no se mueve de lugar mientras el usuario está mirando.
@@ -144,10 +151,40 @@ mi perfil
 
 - **Los datos salen de la sesión** (`SesionService.usuario()`, lo que devolvió el login), sin pedirle nada más al back. En el Sprint 3, la ruta `autorizar` va a devolver los datos actualizados del usuario cada vez que arranca la app.
 - **Las últimas 3 publicaciones** usan el mismo `GET /publicaciones` del feed, con `usuario` (el `_id` propio), `orden: 'fecha'` y `limit: 3`. No hizo falta una ruta nueva en el back.
-- **Datos que se muestran**: foto, nombre y apellido, `@usuario`, descripción y "miembro desde" (`createdAt` con `DatePipe`). El correo, la fecha de nacimiento y el perfil quedaron afuera a propósito.
+- **Datos que se muestran**: foto, nombre y apellido, `@usuario`, descripción y "miembro desde" (`createdAt` con `DatePipe`), con el formato de encabezado YAML del mockup. El correo, la fecha de nacimiento y el perfil quedaron afuera a propósito.
 - **Si se muestra la fecha de nacimiento**, va con `date: 'dd/MM/yyyy' : 'UTC'`: el back guarda "2003-03-14" como la medianoche UTC de ese día. Argentina está en UTC−3, así que en hora local daría el 13/03 a las 21 h y la fecha saldría un día antes. El tercer parámetro de `DatePipe` es la zona horaria en la que se muestra.
-- **Tarjetas compactas** (fecha, título y me gusta), como en el mockup, en vez de la tarjeta completa del feed. Los comentarios se agregan en el Sprint 3.
+- **Filas compactas** (título, hash, me gusta y fecha), como en el mockup, en vez de la tarjeta completa del feed. Cada una lleva a su detalle. Los comentarios se agregan en el Sprint 3.
+- **Mapa de actividad (`ActividadComponent`)**: como el de GitHub, 26 columnas de 7 días. Cuenta como aporte cada publicación hecha y cada me gusta dado (decisión del usuario). `GET /publicaciones/actividad` devuelve solo los días con actividad (`[{ fecha, cantidad }]`) y el front arma las 182 celdas, con nivel de color según la cantidad. El back agrupa con `$dateToString` en hora de Argentina: en UTC, lo hecho después de las 21 h caería en el día siguiente. Las publicaciones eliminadas no cuentan.
 - **Si no hay sesión** (todavía no hay guards de ruta), muestra un aviso con link al login en vez de romperse.
+
+diseño (Commit 2a)
+
+- **Marco de editor**: barra superior con el perfil al centro, riel lateral (Inicio y Nueva), pestañas, migas y barra de estado. Lo arma `LayoutComponent`; las pestañas y migas salen de la ruta actual (`toSignal` de los `NavigationEnd` del router más un `computed`). En celular, el riel pasa a ser la barra de abajo y se suma Perfil.
+- **El scroll sigue siendo el de la página**, no el de un panel interno: las barras son `position: sticky`. Así `AlAparecerDirective` y `window.scrollTo` siguen andando sin cambios. Un `sticky` se pega solo dentro de su contenedor; por eso en la barra superior va en el `:host` de `NavbarComponent` y no en el `.navbar`, que mide lo mismo que su contenedor y no tendría recorrido.
+- **Panel "Problemas" en el login**: el mockup lista ahí las reglas de la contraseña, pero el login no valida el formato (decisión del usuario). Se usa el mismo panel para los campos vacíos y el error del back. El contador de la barra de estado sale de la misma lista.
+- **Hash de cada publicación (`HashCortoPipe`)**: los últimos 7 caracteres del `_id`, como un hash corto de git. Es un dato real, no decorativo, y cuenta como pipe propia del Sprint 4.
+- **Pantalla "Nueva"**: es el mismo `NuevaPublicacionComponent` con el atributo `detallada` (dos templates, una sola lógica de formulario). Suma vista previa, imagen arrastrable, Descartar y Ctrl+Enter. El mensaje sigue siendo texto plano, por eso no tiene la barra de formato del mockup.
+- **Números de línea con un "espejo"**: un `div` invisible detrás del `textarea` repite el texto, una línea por `div`, con el mismo font y ancho. Le da el alto al `textarea` (crece sin scroll) y un contador de CSS numera cada línea real, aunque ocupe varias filas al cortarse.
+- **Compartir copia el link (`CopiarLinkDirective`)**: usa `navigator.clipboard` y expone su estado con `exportAs`, así el botón muestra "Link copiado" o "No se pudo copiar" (`#link="copiarLink"`). Cuenta como directiva propia del Sprint 4. El "compartir con un usuario" del Sprint 6 va aparte.
+- **Detalle adelantado del Sprint 3**: el link necesitaba un destino, así que `/publicaciones/:id` y `GET /publicaciones/:id` ya existen, sin comentarios. El feed corta el mensaje a 3 líneas (`-webkit-line-clamp`) porque el texto completo ya se puede leer ahí.
+- **`withInMemoryScrolling({ scrollPositionRestoration: 'top' })`**: al cambiar de pantalla se vuelve arriba. Sin esto, entrar a una publicación desde abajo del feed abría el detalle a mitad de página.
+
+sesión vencida
+
+- **El interceptor maneja el 401** (`tokenInterceptor`): además de agregar el token, escucha la respuesta con `catchError`. Ante un 401 cierra la sesión y navega a `/login`, en un solo lugar y no en cada pantalla.
+- **La excepción es `/auth/login`**: ese pedido también da 401 cuando la contraseña está mal, y ahí no terminó ninguna sesión. Se compara por URL y no por "si había token", porque puede quedar un token viejo guardado al intentar ingresar.
+- **El error se reenvía con `throwError`**: si el interceptor se lo quedara, el `subscribe` de la pantalla nunca se enteraría y quedaría en "Cargando…".
+- **El aviso viaja en el `state` de la navegación**, como "Cuenta creada": no aparece en la URL y no vuelve si se recarga el login. Va en `error`, para que salga en el panel Problemas y no en el aviso verde.
+
+etiquetas y explorador
+
+- **El filtro vive en la URL** (`/publicaciones?etiqueta=duda`): así sobrevive a una recarga y se puede compartir. Los links usan `routerLink` + `[queryParams]`, y el feed escucha `ActivatedRoute.queryParamMap`. Como solo cambia el query param, Angular reutiliza el componente, por eso hay que suscribirse y no alcanza con leerlo una vez. Cada cambio reinicia el scroll infinito, y el filtro se combina con el orden.
+- **El explorador está solo en el feed** (decisión del usuario): lo muestra `LayoutComponent` con un `@if`, porque en el mockup es una columna del marco, entre el riel y el editor, y no parte del contenido de la pantalla.
+- **Sin contadores** (decisión del usuario): el mockup muestra cuántas publicaciones hay por etiqueta, pero habría necesitado una ruta nueva y mantenerlos actualizados al publicar y eliminar.
+- **La etiqueta se elige solo en la pantalla Nueva**: el compositor del feed publica sin etiqueta (decisión del usuario). Por eso, si hay un filtro activo, lo publicado no se agrega a la lista.
+- **`undefined` en los parámetros**: `HttpClient` convierte un valor `undefined` en el texto `"undefined"`, y el back lo rechazaría. Por eso `etiqueta` se agrega a los filtros solo si tiene valor (`...(etiqueta ? { etiqueta } : {})`).
+- **Colores con una variable por clase**: `.color-duda` y las demás definen `--c-etiqueta`, y el chip, el explorador y el selector usan esa misma variable. `color-mix()` arma el fondo suave a partir del color de cada etiqueta.
+- **Pantallas angostas**: debajo de 1000px no entra la columna del explorador, así que se oculta y aparecen chips horizontales arriba del feed. En celular, la cabecera de la tarjeta oculta el hash y corta el nombre con "…" para que el chip y el tachito entren.
 
 
 ## Deploy
