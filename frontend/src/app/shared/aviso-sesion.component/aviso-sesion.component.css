@@ -1,0 +1,37 @@
+.cuenta {
+  color: var(--c-hash);
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.detalle {
+  color: var(--c-muted);
+  font: 15px/1.6 var(--f-ui);
+}
+
+.barra {
+  height: 4px;
+  background: var(--c-surface-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.barra div {
+  height: 100%;
+  max-width: 100%;
+  background: var(--c-hash);
+  transition: width 1s linear;
+}
+
+.acciones {
+  display: flex;
+  gap: 10px;
+}
+
+.acciones .btn {
+  flex: 1;
+  height: 44px;
+  font-size: 14px;
+}

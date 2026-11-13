@@ -122,6 +122,10 @@ h1 {
   background: var(--c-surface-2);
 }
 
+app-comentarios {
+  margin-top: 10px;
+}
+
 @media (max-width: 760px) {
   .detalle {
     padding: 20px 16px 32px;

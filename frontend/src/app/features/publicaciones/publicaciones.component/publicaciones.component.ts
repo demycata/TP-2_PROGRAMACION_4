@@ -17,7 +17,6 @@ const POR_TANDA = 5;
 @Component({
   selector: 'app-publicaciones',
   imports: [
-    RouterLink,
     NuevaPublicacionComponent,
     PublicacionComponent,
     ModalComponent,

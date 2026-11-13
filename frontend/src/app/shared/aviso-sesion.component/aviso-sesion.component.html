@@ -1,0 +1,18 @@
+<app-modal titulo="Tu sesión está por vencer" (cerrar)="ocultar()">
+  <div class="cuenta mono">{{ segundos() * 1000 | date: 'mm:ss' : 'UTC' }}</div>
+  <p class="detalle">
+    ¿Querés extenderla? Si no hacés nada, vas a tener que volver a ingresar y podés perder lo que estés escribiendo.
+  </p>
+  <div class="barra"><div [style.width.%]="(segundos() / segundosAviso) * 100"></div></div>
+  @if (error(); as mensaje) {
+    <p class="aviso aviso-error">{{ mensaje }}</p>
+  }
+  <div class="acciones">
+    <button class="btn btn-secundario" type="button" [disabled]="extendiendo()" (click)="cerrarSesion()">
+      Cerrar sesión
+    </button>
+    <button class="btn btn-primario" type="button" [disabled]="extendiendo()" (click)="extender()">
+      {{ extendiendo() ? 'Extendiendo…' : 'Extender sesión' }}
+    </button>
+  </div>
+</app-modal>

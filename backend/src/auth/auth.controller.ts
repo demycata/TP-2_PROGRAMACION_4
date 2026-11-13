@@ -8,13 +8,16 @@ import {
   MaxFileSizeValidator,
   ParseFilePipe,
   Post,
+  Req,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from './auth.service.js';
 import { RegistroDto } from './dto/registro.dto.js';
 import { LoginDto } from './dto/login.dto.js';
+import { AuthGuard, UsuarioToken } from '../guards/auth/auth.guard.js';
 
 @Controller('auth')
 export class AuthController {
@@ -51,5 +54,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  @Post('autorizar')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  autorizar(@Req() req: { user: UsuarioToken }) {
+    return this.authService.autorizar(req.user.sub);
+  }
+
+  @Post('refrescar')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  refrescar(@Req() req: { user: UsuarioToken }) {
+    return this.authService.refrescar(req.user);
   }
 }

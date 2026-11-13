@@ -51,6 +51,22 @@ export class AuthService {
     return this.respuestaConToken(usuario);
   }
 
+  async autorizar(id: string) {
+    const usuario = await this.usuarioModel.findById(id);
+
+    if (!usuario) {
+      throw new UnauthorizedException('El usuario ya no existe');
+    }
+
+    return usuario;
+  }
+
+  // req.user también trae iat y exp, y firmar un payload que ya tiene exp junto con expiresIn da error
+  async refrescar({ sub, nombreUsuario, perfil }: UsuarioToken) {
+    const token = await this.jwtService.signAsync({ sub, nombreUsuario, perfil });
+    return { token };
+  }
+
   private async respuestaConToken(usuario: UsuarioDocument) {
     const token = await this.generarToken(usuario);
     return { token, usuario: this.sinPassword(usuario) };

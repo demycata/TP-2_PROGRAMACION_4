@@ -55,3 +55,7 @@
   <span class="espacio"></span>
   <span>es-AR</span>
 </footer>
+
+@if (sesionService.avisoVencimiento()) {
+  <app-aviso-sesion />
+}

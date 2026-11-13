@@ -4,12 +4,13 @@ import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive, Ro
 import { filter, map } from 'rxjs';
 import { NavbarComponent } from '../navbar.component/navbar.component';
 import { ExploradorComponent } from '../explorador.component/explorador.component';
+import { AvisoSesionComponent } from '../aviso-sesion.component/aviso-sesion.component';
 import { SesionService } from '../../core/auth/sesion.service';
 import { Pestana } from '../../models/navegacion.model';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NavbarComponent, ExploradorComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NavbarComponent, ExploradorComponent, AvisoSesionComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
 })
@@ -50,7 +51,7 @@ export class LayoutComponent {
     rutaActiva: ActivatedRoute,
     protected sesionService: SesionService,
   ) {
-    this.ruta = toSignal(
+    this.ruta = toSignal( //agarra la ruta actual y la actualiza cuando cambia
       router.events.pipe(
         filter((evento) => evento instanceof NavigationEnd),
         map(() => router.url.split(/[?#]/)[0]),

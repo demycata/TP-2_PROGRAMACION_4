@@ -1,0 +1,38 @@
+.cargando {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background: var(--c-bg);
+}
+
+.marca {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: var(--c-accent);
+  color: var(--c-on-primary);
+  border-radius: var(--r-lg);
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--c-line);
+  border-top-color: var(--c-accent);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+p {
+  font-size: 13px;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,3 +1,4 @@
+<!-- Versión DETALLADA: formulario completo de la pantalla /publicaciones/nueva (CrearPublicacionComponent, con el atributo detallada) -->
 @if (detallada()) {
   <form class="detallada" [formGroup]="form" (ngSubmit)="publicar()" (keydown.control.enter)="publicar()" novalidate>
     <div class="campo">
@@ -14,7 +15,7 @@
             (click)="alternarEtiqueta(opcion.valor)"
           >
             <span class="opcion-nombre">#{{ opcion.valor }}</span>
-            {{ opcion.descripcion }}
+            
           </button>
         }
       </div>
@@ -120,6 +121,7 @@
     </div>
   </form>
 } @else {
+  <!-- Versión COMPOSITOR (no detallada): tarjeta fija arriba del feed en /publicaciones (PublicacionesComponent, sin el atributo), publica sin etiqueta -->
   <form class="tarjeta compositor" [formGroup]="form" (ngSubmit)="publicar()">
     @if (sesionService.usuario(); as usuario) {
       <img class="avatar" [src]="usuario.imagenPerfil" [alt]="'Foto de ' + usuario.nombreUsuario" />

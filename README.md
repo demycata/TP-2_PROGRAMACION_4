@@ -41,6 +41,8 @@ token (JWT)
 - **Login y registro devuelven `{ token, usuario }`**. El payload del token es `{ sub, nombreUsuario, perfil }`: `sub` (*subject*, el nombre estándar en JWT) es el `_id` del usuario y `perfil` es el rol. El token está firmado, no encriptado: cualquiera puede leer el payload, pero si alguien lo modifica la firma deja de coincidir y el back lo rechaza.
 - **`AuthGuard` (`src/guards/auth/auth.guard.ts`)**: se pone con `@UseGuards(AuthGuard)` en las rutas que necesitan usuario. Lee el header `Authorization: Bearer <token>`, lo verifica con `jwtService.verify()` y deja el payload en `request.user`. Si falta, está mal firmado o venció, responde **401**.
 - **Header y no cookie**: el profe usa una cookie, pero el front y el back están en dos dominios `*.vercel.app` distintos, y para el navegador son sitios diferentes. Una cookie `sameSite: 'strict'` no viaja en esas requests, y con `sameSite: 'none'` varios navegadores la bloquean igual por ser "de terceros". El header lo manda el front a mano, así que no depende de eso.
+- **`POST /auth/autorizar`**: con el `AuthGuard` responde 401 si el token falla. Si es válido, busca al usuario en la base con `req.user.sub` y lo devuelve (también 401 si ya no existe). El front lo usa al abrir la app, porque no puede verificar la firma: `JWT_SECRET` solo lo tiene el back.
+- **`POST /auth/refrescar`**: firma un token nuevo con los mismos datos y una duración completa, y devuelve `{ token }`. Un token no se puede alargar, porque el vencimiento es parte de lo firmado. Hay que pasar solo `sub`, `nombreUsuario` y `perfil`: `req.user` también trae `iat` y `exp`, y firmar un payload que ya tiene `exp` junto con `expiresIn` da error.
 
 publicaciones: alta (`POST /publicaciones`)
 
@@ -88,6 +90,16 @@ publicaciones: etiquetas
 - **El filtro es un query param** (`GET /publicaciones?etiqueta=duda`) que se suma al `$match`, igual que `usuario`. El `countDocuments` usa el mismo filtro, así `total` sirve para el scroll infinito.
 - **Las publicaciones viejas no se tocaron**: quedan sin el campo, aparecen en el listado general y no aparecen al filtrar. A diferencia de `eliminada`, acá no hizo falta un `updateMany`, porque el filtro se aplica solo cuando viene una etiqueta.
 
+publicaciones: comentarios (`/publicaciones/:id/comentarios`)
+
+- **Un segundo controller dentro del módulo `publicaciones`**: la consigna lo llama "Módulo publicaciones - comentarios controller". `ComentariosController` y `ComentariosService` están en la misma carpeta que los de publicaciones, y `PublicacionesModule` registra los dos controllers y las dos entidades en `forFeature`. Con `@Controller('publicaciones/:id/comentarios')`, las rutas quedan anidadas igual que las de me gusta: `POST` y `GET` sobre esa ruta, y `PUT .../:comentarioId`.
+- **Colección propia (`comentarios`), no un array dentro de la publicación** como los me gusta: un me gusta solo se cuenta, pero un comentario se pagina, se edita por su id y se va a contar por fecha para las estadísticas del Sprint 4. Cada comentario tiene `publicacion` y `autor` (ObjectId con `ref`), `mensaje` y `modificado`, y la fecha sale de `createdAt` (`timestamps`).
+- **`GET` paginado** con `offset` y `limit` (`ListarComentariosDto`), más recientes primero (`createdAt` y `_id` descendentes). Devuelve `{ comentarios, total }`, con el autor populado.
+- **`PUT`** cambia el mensaje y pone `modificado: true`. Solo el autor del comentario puede editarlo (403 si no). El `IdComentarioDto` valida los dos ids de la ruta con `@IsMongoId`.
+- **`DELETE .../:comentarioId`** (204), solo el autor (403 si no). No lo pide la consigna, pero sí el mockup. **Borrado físico** (`deleteOne`), no lógico como las publicaciones (decisión del usuario): nadie necesita un comentario borrado, y con un campo `eliminado` habría que filtrarlo en el listado, el total, la edición y las estadísticas.
+- **Si la publicación está eliminada, sus comentarios tampoco existen**: las rutas chequean primero la publicación (`eliminada: false`) y dan 404. Así, la baja de una publicación se lleva sus comentarios sin tocarlos en la base.
+- **Máximo de 1000 caracteres** (`@MaxLength`), por el contador `N/1000` del mockup.
+
 
 
 ### Front: 
@@ -95,7 +107,7 @@ estructura
 
 - **Carpetas**: `services/` (servicios que hablan con el back), `features/<área>/<componente>.component/` (una carpeta por pantalla, con `.ts`, `.html` y `.css`) y `shared/` (lo que usan varias pantallas: layouts, validadores, la función de errores).
 - **Servicios con `@Service()`** (de `@angular/core`, nuevo en Angular 22) en vez de `@Injectable`. Los componentes sí usan el constructor.
-- **Rutas lazy** (`loadComponent`): el código de cada pantalla se descarga recién cuando se entra a ella. `/login` y `/registro` van sueltas; `/publicaciones`, `/publicaciones/nueva`, `/publicaciones/:id` y `/mi-perfil` son hijas de `LayoutComponent`, que dibuja el marco de la app y un `<router-outlet>` donde va la pantalla. Así la barra no se repite en cada componente y no aparece en el login. `''` y cualquier ruta inexistente (`'**'`) van a `/login`. 
+- **Rutas lazy** (`loadComponent`): el código de cada pantalla se descarga recién cuando se entra a ella. `/login` y `/registro` van sueltas; `/publicaciones`, `/publicaciones/nueva`, `/publicaciones/:id` y `/mi-perfil` son hijas de `LayoutComponent`, que dibuja el marco de la app y un `<router-outlet>` donde va la pantalla. Así la barra no se repite en cada componente y no aparece en el login. `''` va a `/cargando` y cualquier ruta inexistente (`'**'`) va a `/login`. 
 
 registro y login
 
@@ -108,6 +120,8 @@ sesión
 
 - **`SesionService` (`core/auth/`)** guarda el token y el usuario en `localStorage` al hacer login (`iniciar()`), así siguen estando si se recarga la página. El usuario se expone además como una señal (`usuario()`), así las pantallas que lo muestran se actualizan solas. `cerrar()` borra todo.
 - **`tokenInterceptor` (`core/interceptors/`)**: un interceptor es una función por la que pasan todos los pedidos de `HttpClient` antes de salir. Si hay token, clona el pedido y le agrega el header `Authorization: Bearer <token>` (los pedidos son inmutables, por eso se clonan). Se registra con `withInterceptors([tokenInterceptor])` en `app.config.ts`. Así ningún servicio tiene que acordarse de mandar el token.
+- **Pantalla de carga y `authGuard` (`core/guards/`)**: el guard protege `LayoutComponent`, así que cubre todas las pantallas logueadas. Si el token todavía no se validó en esta carga de la página (`SesionService.validada`), manda a `/cargando` y guarda la ruta pedida en el `state` de la navegación. `CargandoComponent` muestra el spinner, llama a `autorizar` y vuelve a esa ruta (o a `/publicaciones`). Por eso un link compartido sigue funcionando aunque la consigna solo hable de ir a publicaciones. Sin token va directo al login; con un 401 se encarga el interceptor.
+- **Aviso de vencimiento**: `SesionService` programa un `setTimeout` a partir del `exp` del token, no desde que se abrió la página, para que el aviso siga a tiempo después de recargar. `AvisoSesionComponent` (dentro de `LayoutComponent`) muestra la cuenta regresiva: "Extender sesión" llama a `refrescar` y reprograma el aviso, "Cerrar sesión" va al login. Si llega a cero, cierra la sesión y va al login. El ✕ y Escape solo ocultan el modal: la sesión vence igual y el siguiente pedido da 401.
 - **El registro no inicia sesión**: el back también devuelve el token, pero el flujo sigue siendo ir a `/login` con el mensaje "Cuenta creada, ya podés ingresar.".
 
 nueva publicación
@@ -153,7 +167,7 @@ mi perfil
 - **Las últimas 3 publicaciones** usan el mismo `GET /publicaciones` del feed, con `usuario` (el `_id` propio), `orden: 'fecha'` y `limit: 3`. No hizo falta una ruta nueva en el back.
 - **Datos que se muestran**: foto, nombre y apellido, `@usuario`, descripción y "miembro desde" (`createdAt` con `DatePipe`), con el formato de encabezado YAML del mockup. El correo, la fecha de nacimiento y el perfil quedaron afuera a propósito.
 - **Si se muestra la fecha de nacimiento**, va con `date: 'dd/MM/yyyy' : 'UTC'`: el back guarda "2003-03-14" como la medianoche UTC de ese día. Argentina está en UTC−3, así que en hora local daría el 13/03 a las 21 h y la fecha saldría un día antes. El tercer parámetro de `DatePipe` es la zona horaria en la que se muestra.
-- **Filas compactas** (título, hash, me gusta y fecha), como en el mockup, en vez de la tarjeta completa del feed. Cada una lleva a su detalle. Los comentarios se agregan en el Sprint 3.
+- **Filas compactas** (título, hash, me gusta y fecha), como en el mockup, en vez de la tarjeta completa del feed. Cada una lleva a su detalle. Abajo van sus 3 comentarios más recientes (ver "comentarios").
 - **Mapa de actividad (`ActividadComponent`)**: como el de GitHub, 26 columnas de 7 días. Cuenta como aporte cada publicación hecha y cada me gusta dado (decisión del usuario). `GET /publicaciones/actividad` devuelve solo los días con actividad (`[{ fecha, cantidad }]`) y el front arma las 182 celdas, con nivel de color según la cantidad. El back agrupa con `$dateToString` en hora de Argentina: en UTC, lo hecho después de las 21 h caería en el día siguiente. Las publicaciones eliminadas no cuentan.
 - **Si no hay sesión** (todavía no hay guards de ruta), muestra un aviso con link al login en vez de romperse.
 
@@ -185,6 +199,17 @@ etiquetas y explorador
 - **`undefined` en los parámetros**: `HttpClient` convierte un valor `undefined` en el texto `"undefined"`, y el back lo rechazaría. Por eso `etiqueta` se agrega a los filtros solo si tiene valor (`...(etiqueta ? { etiqueta } : {})`).
 - **Colores con una variable por clase**: `.color-duda` y las demás definen `--c-etiqueta`, y el chip, el explorador y el selector usan esa misma variable. `color-mix()` arma el fondo suave a partir del color de cada etiqueta.
 - **Pantallas angostas**: debajo de 1000px no entra la columna del explorador, así que se oculta y aparecen chips horizontales arriba del feed. En celular, la cabecera de la tarjeta oculta el hash y corta el nombre con "…" para que el chip y el tachito entren.
+
+comentarios
+
+- **Dónde se ven** (decisión del usuario): en el detalle, completos; en Mi Perfil, los 3 más recientes de cada publicación con un link "Ver los N comentarios" al detalle; en el feed, ninguno.
+- **`ComentariosComponent`** recibe la publicación y hace todo: carga, formulario y "Cargar más". Con el atributo `resumen` (el mismo truco que `detallada` en la pantalla Nueva) pide 3, no muestra el formulario y cambia "Cargar más" por el link al detalle. Se carga en `ngOnInit`, porque en el constructor el `input()` todavía no tiene valor.
+- **"Cargar más" agrega sin borrar**: el `offset` es la cantidad que ya hay en pantalla, y lo nuevo se suma al final de la lista. Igual que en el feed, se descartan los repetidos por `_id` (si alguien comenta en el medio, todo se corre un lugar). El botón muestra cuántos faltan (`total - cargados`, un `computed`).
+- **Al comentar**, el comentario nuevo se agrega arriba y se suma 1 al total, sin recargar. Eso no rompe el `offset`, porque en el back también quedó primero.
+- **`ComentarioComponent`** muestra uno solo y se encarga de su edición: "Editar" aparece solo en los míos (`computed` contra `SesionService`, como el tachito), abre un `textarea` en el lugar con el texto actual, y Escape cancela. Al guardar emite `editado` con lo que devolvió el back, y la lista lo reemplaza. Si el texto no cambió, no se manda nada, así no queda marcado como editado sin motivo.
+- **Eliminar un comentario**: al lado de "Editar", un tachito (el mismo ícono que el de las publicaciones) que emite `eliminar`. La confirmación sigue el patrón del feed: la lista guarda el comentario en `aEliminar` y abre el modal; si sale bien, lo saca y resta 1 al total. Eso no rompe el `offset`, porque en el back también se fue.
+- **Marcas**: "editado" cuando `modificado` es `true` (pasando el mouse se ve cuándo) y "autor" cuando el que comenta es el autor de la publicación, como en el mockup.
+- **`--c-anillo`**: la foto de cada comentario tiene un borde del color del fondo, que la separa de la línea vertical. En Mi Perfil el fondo es otro, así que la pantalla redefine la variable y el componente la hereda, sin saber dónde está.
 
 
 ## Deploy

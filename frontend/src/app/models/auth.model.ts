@@ -9,3 +9,5 @@ export interface RespuestaAuth {
   token: string;
   usuario: Usuario;
 }
+
+export type TokenRenovado = Pick<RespuestaAuth, 'token'>;

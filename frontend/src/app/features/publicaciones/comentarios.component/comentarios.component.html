@@ -1,0 +1,91 @@
+<section class="comentarios" [class.resumen]="resumen()">
+  @if (!resumen()) {
+    <h2>Comentarios<span class="mono cantidad">{{ total() }}</span></h2>
+
+    <form class="escribir" [formGroup]="form" (ngSubmit)="comentar()" (keydown.control.enter)="comentar()" novalidate>
+      <textarea
+        formControlName="mensaje"
+        rows="3"
+        placeholder="Escribí un comentario…"
+        aria-label="Comentario"
+        [readonly]="enviado()"
+      ></textarea>
+      <div class="pie">
+        <span class="mono contador" [class.excedido]="form.controls.mensaje.hasError('maxlength')">
+          {{ texto().length }}/1000
+        </span>
+        <button class="comentar" type="submit" [disabled]="form.invalid || enviado()">
+          {{ enviado() ? 'Comentando…' : 'Comentar' }}
+          <span class="mono atajo">Ctrl ↵</span>
+        </button>
+      </div>
+    </form>
+
+    @if (form.controls.mensaje.hasError('maxlength')) {
+      <small class="error">✗ El comentario no puede superar los 1000 caracteres.</small>
+    }
+    @if (error(); as mensaje) {
+      <p class="aviso aviso-error" role="alert">{{ mensaje }}</p>
+    }
+  }
+
+  @if (comentarios().length) {
+    <ol class="lista">
+      @for (comentario of comentarios(); track comentario._id) {
+        <li>
+          <app-comentario
+            [comentario]="comentario"
+            [deAutor]="comentario.autor._id === publicacion().autor._id"
+            [resumen]="resumen()"
+            (editado)="reemplazar($event)"
+            (eliminar)="pedirEliminacion($event)"
+          />
+        </li>
+      }
+    </ol>
+  }
+
+  @if (aEliminar(); as comentario) {
+    <app-modal titulo="¿Eliminar este comentario?" (cerrar)="cancelarEliminacion()">
+      <p class="confirmacion">El comentario se va a eliminar y no se puede deshacer.</p>
+      @if (errorEliminar(); as mensaje) {
+        <p class="aviso aviso-error">{{ mensaje }}</p>
+      }
+      <div class="acciones-modal">
+        <button class="btn btn-secundario" type="button" [disabled]="eliminando()" (click)="cancelarEliminacion()">
+          Cancelar
+        </button>
+        <button class="btn btn-peligro" type="button" [disabled]="eliminando()" (click)="confirmarEliminacion(comentario)">
+          {{ eliminando() ? 'Eliminando…' : 'Eliminar' }}
+        </button>
+      </div>
+    </app-modal>
+  }
+
+  @if (errorCarga(); as mensaje) {
+    <div class="error-carga">
+      <small class="error" role="alert">{{ mensaje }}</small>
+      @if (!resumen()) {
+        <button class="btn btn-secundario reintentar" type="button" (click)="cargar()">Reintentar</button>
+      }
+    </div>
+  } @else if (cargando()) {
+    <p class="mono muted estado">Cargando comentarios…</p>
+  } @else if (resumen()) {
+    @if (total() === 0) {
+      <p class="mono muted estado">Sin comentarios todavía.</p>
+    } @else if (restantes() > 0) {
+      <a class="mono ver-todos" [routerLink]="['/publicaciones', publicacion()._id]">
+        Ver los {{ total() }} comentarios →
+      </a>
+    }
+  } @else if (restantes() > 0) {
+    <button class="btn btn-secundario cargar-mas" type="button" (click)="cargar()">
+      Cargar más<span class="mono muted">{{ restantes() }} restantes</span>
+    </button>
+  } @else if (total() === 0) {
+    <p class="mono muted estado vacio">Todavía no hay comentarios. Escribí el primero.</p>
+  } @else {
+    <span class="mono fin">// no hay más comentarios</span>
+  }
+</section>

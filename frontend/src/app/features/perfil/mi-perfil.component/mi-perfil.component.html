@@ -27,18 +27,21 @@
         } @else {
           <div class="lista">
             @for (publicacion of publicaciones(); track publicacion._id) {
-              <a class="publicacion" [routerLink]="['/publicaciones', publicacion._id]">
-                <span class="titulo">{{ publicacion.titulo }}</span>
-                <span class="meta mono">
-                  @if (publicacion.etiqueta; as etiqueta) {
-                    <span class="etiqueta" [class]="'color-' + etiqueta">#{{ etiqueta }}</span>
-                  }
-                  <span class="hash">{{ publicacion._id | hashCorto }}</span>
-                  <span>♥ {{ publicacion.cantidadMeGusta }}</span>
-                  <span class="espacio"></span>
-                  <span>{{ publicacion.createdAt | tiempoRelativo }}</span>
-                </span>
-              </a>
+              <article class="publicacion">
+                <a class="enlace" [routerLink]="['/publicaciones', publicacion._id]">
+                  <span class="titulo">{{ publicacion.titulo }}</span>
+                  <span class="meta mono">
+                    @if (publicacion.etiqueta; as etiqueta) {
+                      <span class="etiqueta" [class]="'color-' + etiqueta">#{{ etiqueta }}</span>
+                    }
+                    <span class="hash">{{ publicacion._id | hashCorto }}</span>
+                    <span>♥ {{ publicacion.cantidadMeGusta }}</span>
+                    <span class="espacio"></span>
+                    <span>{{ publicacion.createdAt | tiempoRelativo }}</span>
+                  </span>
+                </a>
+                <app-comentarios [publicacion]="publicacion" resumen />
+              </article>
             } @empty {
               <p class="vacio">
                 Todavía no publicaste nada. <a routerLink="/publicaciones/nueva">Hacé tu primera publicación</a>

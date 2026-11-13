@@ -126,21 +126,29 @@ h2 {
   overflow: hidden;
 }
 
+/* --c-anillo: el borde de las fotos de los comentarios toma el fondo de la tarjeta */
 .publicacion {
+  --c-anillo: var(--c-surface);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   padding: 16px 18px;
   background: var(--c-surface);
   border-bottom: 1px solid var(--c-border);
-  color: var(--c-text);
 }
 
 .publicacion:last-child {
   border-bottom: 0;
 }
 
-.publicacion:hover .titulo {
+.enlace {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--c-text);
+}
+
+.enlace:hover .titulo {
   color: var(--c-accent);
 }
 

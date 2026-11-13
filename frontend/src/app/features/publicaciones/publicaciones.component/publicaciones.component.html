@@ -15,20 +15,6 @@
     </div>
   </div>
 
-  <nav class="filtros" aria-label="Filtrar por etiqueta">
-    <a routerLink="/publicaciones" [class.activo]="!etiqueta()">Todas</a>
-    @for (opcion of etiquetas; track opcion.valor) {
-      <a
-        routerLink="/publicaciones"
-        [queryParams]="{ etiqueta: opcion.valor }"
-        [class]="'color-' + opcion.valor"
-        [class.activo]="etiqueta() === opcion.valor"
-      >
-        <span class="numeral">#</span>{{ opcion.valor }}
-      </a>
-    }
-  </nav>
-
   <app-nueva-publicacion (creada)="publicada($event)" />
 
   <div class="listado">
@@ -66,7 +52,7 @@
 
 @if (aEliminar(); as publicacion) {
   <app-modal titulo="¿Eliminar esta publicación?" (cerrar)="cancelarEliminacion()">
-    <p class="confirmacion">Se va a eliminar y no se puede deshacer.</p>
+    <p class="confirmacion">Se va a eliminar junto con sus comentarios y no se puede deshacer.</p>
     <pre class="git-rm mono"><div class="comando">$ git rm publicaciones/{{ publicacion._id | hashCorto }}.md</div><div class="borrado">- {{ publicacion.titulo }}</div><div class="borrado">- {{ publicacion.cantidadMeGusta }} me gusta</div></pre>
     @if (errorEliminar(); as mensaje) {
       <p class="aviso aviso-error">{{ mensaje }}</p>

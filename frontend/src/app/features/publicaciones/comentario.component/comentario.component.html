@@ -1,0 +1,60 @@
+@let c = comentario();
+<article class="comentario" [class.resumen]="resumen()">
+  <img class="avatar" [src]="c.autor.imagenPerfil" [alt]="'Foto de ' + c.autor.nombreUsuario" />
+
+  <div class="caja">
+    <div class="cabecera mono">
+      <span class="nombre">{{ c.autor.nombre }} {{ c.autor.apellido }}</span>
+      <span>&#64;{{ c.autor.nombreUsuario }}</span>
+      <span class="separador">·</span>
+      <span [title]="c.createdAt | date: 'dd/MM/yyyy HH:mm'">{{ c.createdAt | tiempoRelativo }}</span>
+      @if (c.modificado) {
+        <span class="chip" [title]="'Editado el ' + (c.updatedAt | date: 'dd/MM/yyyy HH:mm')">editado</span>
+      }
+      @if (deAutor()) {
+        <span class="chip chip-autor">autor</span>
+      }
+      @if (esMio() && !resumen() && !editando()) {
+        <span class="espacio"></span>
+        <button class="herramienta" type="button" (click)="editar()">Editar</button>
+        <button
+          class="herramienta eliminar"
+          type="button"
+          title="Eliminar"
+          aria-label="Eliminar comentario"
+          (click)="eliminar.emit(c)"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+          </svg>
+        </button>
+      }
+    </div>
+
+    @if (editando()) {
+      <form
+        [formGroup]="form"
+        (ngSubmit)="guardar()"
+        (keydown.escape)="cancelar()"
+        (keydown.control.enter)="guardar()"
+        novalidate
+      >
+        <textarea formControlName="mensaje" rows="3" aria-label="Editar comentario" [readonly]="enviado()"></textarea>
+        <div class="pie">
+          <span class="mono contador" [class.excedido]="form.controls.mensaje.hasError('maxlength')">
+            {{ texto().length }}/1000 · Esc para cancelar
+          </span>
+          <button class="boton boton-secundario" type="button" [disabled]="enviado()" (click)="cancelar()">Cancelar</button>
+          <button class="boton boton-primario" type="submit" [disabled]="form.invalid || enviado()">
+            {{ enviado() ? 'Guardando…' : 'Guardar cambios' }}
+          </button>
+        </div>
+        @if (error(); as mensaje) {
+          <small class="error" role="alert">{{ mensaje }}</small>
+        }
+      </form>
+    } @else {
+      <p class="mensaje">{{ c.mensaje }}</p>
+    }
+  </div>
+</article>
