@@ -99,15 +99,8 @@ h3 a:hover {
 }
 
 .mensaje {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
   color: var(--c-text-2);
   font: 15px/1.65 var(--f-body);
-  white-space: pre-line;
-  overflow-wrap: anywhere;
-  text-wrap: pretty;
 }
 
 .imagen {
@@ -171,7 +164,6 @@ h3 a:hover {
   }
 
   .mensaje {
-    -webkit-line-clamp: 2;
     font-size: 14px;
     line-height: 1.55;
   }

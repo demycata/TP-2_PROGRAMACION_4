@@ -19,7 +19,7 @@ export class CopiarLinkDirective {
 
   async copiar() {
     try {
-      await navigator.clipboard.writeText(`${location.origin}${this.appCopiarLink()}`);
+      await navigator.clipboard.writeText(`${location.origin}${this.appCopiarLink()}`);//location.origin es la url del sitio web, appCopiarLink es la ruta de la publicación
       this.mostrar('copiado');
     } catch {
       this.mostrar('error');

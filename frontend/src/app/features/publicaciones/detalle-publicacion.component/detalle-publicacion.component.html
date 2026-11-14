@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <p class="mensaje">{{ p.mensaje }}</p>
+    <app-mensaje class="mensaje" [texto]="p.mensaje" />
 
     @if (p.imagen; as imagen) {
       <img class="imagen" [src]="imagen" [alt]="p.titulo" />

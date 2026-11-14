@@ -23,7 +23,7 @@
 
   <div class="contenido">
     <h3><a [routerLink]="['/publicaciones', p._id]">{{ p.titulo }}</a></h3>
-    <p class="mensaje">{{ p.mensaje }}</p>
+    <app-mensaje class="mensaje" [texto]="p.mensaje" resumen />
   </div>
 
   @if (p.imagen; as imagen) {

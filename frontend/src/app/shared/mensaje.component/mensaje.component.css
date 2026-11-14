@@ -1,0 +1,108 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9em;
+  min-width: 0;
+}
+
+.texto {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+strong {
+  color: var(--c-text);
+  font-weight: 600;
+}
+
+.texto code {
+  padding: 1px 5px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  background: var(--c-code-bg);
+  color: var(--c-code-text);
+  font: 0.86em var(--f-mono);
+}
+
+.codigo {
+  margin: 0;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  background: var(--c-code-bg);
+  overflow: hidden;
+}
+
+figcaption {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--c-border);
+  color: var(--c-muted);
+  font: 12px/1 var(--f-mono);
+}
+
+.lineas {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  font: 0.86em/1.7 var(--f-mono);
+}
+
+.numeros {
+  display: flex;
+  flex-direction: column;
+  min-width: 40px;
+  padding: 12px 10px 12px 12px;
+  color: var(--c-dim);
+  text-align: right;
+  user-select: none;
+}
+
+pre {
+  margin: 0;
+  padding: 12px 14px 12px 4px;
+  overflow-x: auto;
+  color: var(--c-code-text);
+  font: inherit;
+}
+
+.linea {
+  display: block;
+  min-height: 1.7em;
+}
+
+.clave {
+  color: var(--c-kw);
+}
+
+.cadena {
+  color: var(--c-str);
+}
+
+.numero {
+  color: var(--c-num);
+}
+
+.comentario {
+  color: var(--c-cm);
+}
+
+.funcion {
+  color: var(--c-fn);
+}
+
+/* en el feed: el degradé arranca recién a las 11em, así un mensaje corto no se ve cortado */
+:host(.resumen) {
+  max-height: 15em;
+  overflow: hidden;
+  mask-image: linear-gradient(#000 11em, transparent 15em);
+}
+
+:host(.resumen) .texto {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+:host(.resumen) pre {
+  overflow: hidden;
+}

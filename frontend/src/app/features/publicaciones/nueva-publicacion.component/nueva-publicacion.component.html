@@ -40,6 +40,12 @@
         <div class="modos">
           <button type="button" [class.activo]="!mostrandoVistaPrevia()" (click)="mostrandoVistaPrevia.set(false)">Escribir</button>
           <button type="button" [class.activo]="mostrandoVistaPrevia()" (click)="mostrandoVistaPrevia.set(true)">Vista previa</button>
+          @if (!mostrandoVistaPrevia()) {
+            <span class="espacio"></span>
+            <button type="button" class="herramienta negrita" title="Negrita" aria-label="Negrita" [disabled]="enviado()" (click)="formatear('negrita')">B</button>
+            <button type="button" class="herramienta cursiva" title="Cursiva" aria-label="Cursiva" [disabled]="enviado()" (click)="formatear('cursiva')">I</button>
+            <button type="button" class="herramienta codigo" title="Bloque de código" aria-label="Bloque de código" [disabled]="enviado()" (click)="formatear('codigo')">&lt;/&gt;</button>
+          }
         </div>
 
         <div class="editor" [hidden]="mostrandoVistaPrevia()">
@@ -49,6 +55,7 @@
             }
           </div>
           <textarea
+            #cuerpo
             formControlName="mensaje"
             placeholder="Contá qué intentaste, qué esperabas y qué pasó…"
             aria-label="Cuerpo de la publicación"
@@ -62,7 +69,7 @@
               <span class="chip-etiqueta" [class]="'color-' + actual">#{{ actual }}</span>
             }
             <h3>{{ titulo() || 'Sin título' }}</h3>
-            <p>{{ mensaje() || 'Todavía no escribiste nada.' }}</p>
+            <app-mensaje [texto]="mensaje() || 'Todavía no escribiste nada.'" />
             @if (vistaPrevia(); as url) {
               <img [src]="url" alt="Vista previa de la imagen" />
             }

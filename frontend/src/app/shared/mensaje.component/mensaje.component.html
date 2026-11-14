@@ -1,0 +1,40 @@
+<!-- La pipe convierte el string en BloqueMensaje[] y se recorre. Como es pura, solo se vuelve a ejecutar si cambia texto(). -->
+@for (bloque of texto() | formatoMensaje; track $index) {
+  <!-- Unión discriminada: adentro del @if, bloque es BloqueTexto; en el @else, BloqueCodigo. -->
+  @if (bloque.tipo === 'texto') {
+    <!-- Cada parte con su etiqueta. Todo pasa por {{ }}, que escapa el HTML: lo que escribe el usuario nunca se interpreta como código. -->
+    <p class="texto">
+      @for (parte of bloque.partes; track $index) {
+        @switch (parte.estilo) {
+          @case ('negrita') {
+            <strong>{{ parte.texto }}</strong>
+          }
+          @case ('cursiva') {
+            <em>{{ parte.texto }}</em>
+          }
+          @case ('codigo') {
+            <code>{{ parte.texto }}</code>
+          }
+          @default {
+            <span>{{ parte.texto }}</span>
+          }
+        }
+      }
+    </p>
+  } @else {
+    <figure class="codigo">
+      <figcaption>{{ bloque.lenguaje || 'código' }}</figcaption>
+      <!-- Dos columnas: los números (uno por fila de la matriz) y el código. Tienen la misma altura de línea, así quedan alineados. -->
+      <div class="lineas">
+        <div class="numeros" aria-hidden="true">
+          @for (linea of bloque.lineas; track $index) {
+            <span>{{ $index + 1 }}</span>
+          }
+        </div>
+        <!-- en una sola línea: adentro de <pre> Angular no saca los espacios del template -->
+        <!-- Cada línea es un span con display: block; cada pieza, un span con la clase de su color (.clave, .cadena…). -->
+        <pre><code>@for (linea of bloque.lineas; track $index) {<span class="linea">@for (pieza of linea; track $index) {<span [class]="pieza.color">{{ pieza.texto }}</span>}</span>}</code></pre>
+      </div>
+    </figure>
+  }
+}

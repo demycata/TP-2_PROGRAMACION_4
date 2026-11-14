@@ -7,10 +7,19 @@ import { MeGustaComponent } from '../me-gusta.component/me-gusta.component';
 import { CopiarLinkDirective } from '../../../shared/directives/copiar-link.directive';
 import { HashCortoPipe } from '../../../shared/pipes/hash-corto.pipe';
 import { TiempoRelativoPipe } from '../../../shared/pipes/tiempo-relativo.pipe';
+import { MensajeComponent } from '../../../shared/mensaje.component/mensaje.component';
 
 @Component({
   selector: 'app-publicacion',
-  imports: [DatePipe, RouterLink, MeGustaComponent, CopiarLinkDirective, HashCortoPipe, TiempoRelativoPipe],
+  imports: [
+    DatePipe,
+    RouterLink,
+    MeGustaComponent,
+    MensajeComponent,
+    CopiarLinkDirective,
+    HashCortoPipe,
+    TiempoRelativoPipe,
+  ],
   templateUrl: './publicacion.component.html',
   styleUrl: './publicacion.component.css',
 })

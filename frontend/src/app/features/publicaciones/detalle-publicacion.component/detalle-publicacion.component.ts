@@ -8,11 +8,20 @@ import { MeGustaComponent } from '../me-gusta.component/me-gusta.component';
 import { ComentariosComponent } from '../comentarios.component/comentarios.component';
 import { CopiarLinkDirective } from '../../../shared/directives/copiar-link.directive';
 import { HashCortoPipe } from '../../../shared/pipes/hash-corto.pipe';
+import { MensajeComponent } from '../../../shared/mensaje.component/mensaje.component';
 import { mensajeDeError } from '../../../shared/mensaje-error';
 
 @Component({
   selector: 'app-detalle-publicacion',
-  imports: [DatePipe, RouterLink, MeGustaComponent, ComentariosComponent, CopiarLinkDirective, HashCortoPipe],
+  imports: [
+    DatePipe,
+    RouterLink,
+    MeGustaComponent,
+    MensajeComponent,
+    ComentariosComponent,
+    CopiarLinkDirective,
+    HashCortoPipe,
+  ],
   templateUrl: './detalle-publicacion.component.html',
   styleUrl: './detalle-publicacion.component.css',
 })

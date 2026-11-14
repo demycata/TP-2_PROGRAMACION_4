@@ -203,9 +203,31 @@
   cursor: pointer;
 }
 
-.modos button.activo {
+.modos button.activo,
+.modos .herramienta:hover:enabled {
   background: var(--c-surface-2);
   color: var(--c-text);
+}
+
+.modos .espacio {
+  flex: 1;
+}
+
+.modos .herramienta {
+  min-width: 30px;
+  padding: 0 6px;
+}
+
+.negrita {
+  font-weight: 700;
+}
+
+.cursiva {
+  font-style: italic;
+}
+
+.modos .codigo {
+  font: 600 12px var(--f-mono);
 }
 
 /* el espejo repite el texto invisible: da el alto del textarea y numera cada línea real aunque ocupe varias filas */
@@ -278,11 +300,9 @@
   overflow-wrap: anywhere;
 }
 
-.previa p {
+.previa app-mensaje {
   color: var(--c-text-2);
   font: 15.5px/1.7 var(--f-body);
-  white-space: pre-line;
-  overflow-wrap: anywhere;
 }
 
 .previa img {

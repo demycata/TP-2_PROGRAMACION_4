@@ -78,9 +78,6 @@ h1 {
 .mensaje {
   color: var(--c-text-2);
   font: 17px/1.75 var(--f-body);
-  white-space: pre-line;
-  overflow-wrap: anywhere;
-  text-wrap: pretty;
 }
 
 .imagen {
