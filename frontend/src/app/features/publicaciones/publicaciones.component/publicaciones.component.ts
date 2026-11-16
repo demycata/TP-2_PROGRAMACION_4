@@ -1,6 +1,6 @@
 import { Component, DestroyRef, computed, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { PublicacionService } from '../../../services/publicacion.service';
 import { Etiqueta, OpcionOrden, OrdenPublicaciones, Publicacion } from '../../../models/publicacion.model';
@@ -53,8 +53,13 @@ export class PublicacionesComponent {
   constructor(
     ruta: ActivatedRoute,
     private publicacionService: PublicacionService,
+    router: Router,
     destroyRef: DestroyRef,
   ) {
+    const aviso = router.currentNavigation()?.extras.state?.['aviso'];
+    if (aviso) {
+      this.mostrarAviso(aviso);
+    }
     ruta.queryParamMap.subscribe((parametros) => {
       this.etiqueta.set(parametros.get('etiqueta') as Etiqueta | null);
       this.reiniciar();

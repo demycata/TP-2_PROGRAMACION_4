@@ -1,0 +1,89 @@
+<section class="usuarios">
+  <div class="encabezado">
+    @if (!cargando() && !error()) {
+      <span class="resumen mono muted">
+        {{ usuarios().length }} usuarios · {{ deshabilitados() }} deshabilitados
+      </span>
+    }
+    <a class="btn btn-primario" routerLink="/dashboard/usuarios/nuevo">+ Nuevo usuario</a>
+  </div>
+
+  @if (errorAccion() && !aDeshabilitar()) {
+    <p class="aviso aviso-error" role="alert">{{ errorAccion() }}</p>
+  }
+
+  @if (error(); as mensaje) {
+    <div class="fin">
+      <p class="aviso aviso-error">{{ mensaje }}</p>
+      <button class="btn btn-secundario" type="button" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (cargando()) {
+    <p class="fin mono muted">Cargando usuarios…</p>
+  } @else {
+    <ul class="lista tarjeta">
+      @for (usuario of usuarios(); track usuario._id) {
+        @let esYo = usuario._id === sesionService.usuario()?._id;
+        <li class="fila" [class.apagado]="!usuario.habilitado">
+          <img class="avatar" [src]="usuario.imagenPerfil" [alt]="'Foto de ' + usuario.nombreUsuario" />
+
+          <div class="identidad">
+            <span class="nombre">
+              {{ usuario.nombre }} {{ usuario.apellido }}
+              @if (esYo) {
+                <span class="chip mono">vos</span>
+              }
+            </span>
+            <span class="mono muted">&#64;{{ usuario.nombreUsuario }} · {{ usuario.correo }}</span>
+          </div>
+
+          <div class="datos mono">
+            <span class="chip" [class.admin]="usuario.perfil === 'administrador'">{{ usuario.perfil }}</span>
+            <span class="muted" title="Fecha de alta">desde {{ usuario.createdAt | date: 'dd/MM/yyyy' }}</span>
+          </div>
+
+          <span class="estado mono" [class.inactivo]="!usuario.habilitado">
+            ● {{ usuario.habilitado ? 'habilitado' : 'deshabilitado' }}
+          </span>
+
+          <div class="accion">
+            @if (esYo) {
+              <span class="mono muted">—</span>
+            } @else if (usuario.habilitado) {
+              <button class="btn btn-secundario" type="button" [disabled]="procesando() === usuario._id" (click)="pedirConfirmacion(usuario)">
+                Deshabilitar
+              </button>
+            } @else {
+              <button class="btn btn-secundario" type="button" [disabled]="procesando() === usuario._id" (click)="habilitar(usuario)">
+                {{ procesando() === usuario._id ? 'Habilitando…' : 'Habilitar' }}
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+@if (aviso(); as mensaje) {
+  <p class="aviso aviso-ok aviso-flotante" role="status">{{ mensaje }}</p>
+}
+
+@if (aDeshabilitar(); as usuario) {
+  <app-modal [titulo]="'¿Deshabilitar a @' + usuario.nombreUsuario + '?'" (cerrar)="cancelarDeshabilitar()">
+    <p class="confirmacion">
+      No va a poder ingresar a la aplicación, y si tiene la sesión abierta la pierde al recargar o al extenderla.
+      Lo podés volver a habilitar cuando quieras.
+    </p>
+    @if (errorAccion(); as mensaje) {
+      <p class="aviso aviso-error">{{ mensaje }}</p>
+    }
+    <div class="acciones-modal">
+      <button class="btn btn-secundario" type="button" [disabled]="procesando()" (click)="cancelarDeshabilitar()">
+        Cancelar
+      </button>
+      <button class="btn btn-peligro" type="button" [disabled]="procesando()" (click)="deshabilitar(usuario)">
+        {{ procesando() ? 'Deshabilitando…' : 'Deshabilitar' }}
+      </button>
+    </div>
+  </app-modal>
+}

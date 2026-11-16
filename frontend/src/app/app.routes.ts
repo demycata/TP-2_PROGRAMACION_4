@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'cargando', pathMatch: 'full' },
@@ -55,6 +56,39 @@ export const routes: Routes = [
           import('./features/perfil/mi-perfil.component/mi-perfil.component').then(
             (m) => m.MiPerfilComponent,
           ),
+      },
+      {
+        path: 'dashboard/usuarios/nuevo',
+        canMatch: [adminGuard],
+        loadComponent: () =>
+          import('./features/dashboard/nuevo-usuario.component/nuevo-usuario.component').then(
+            (m) => m.NuevoUsuarioComponent,
+          ),
+      },
+      {
+        path: 'dashboard',
+        canMatch: [adminGuard],
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.component/dashboard.component').then(
+            (m) => m.DashboardComponent,
+          ),
+        children: [
+          { path: '', redirectTo: 'estadisticas', pathMatch: 'full' },
+          {
+            path: 'estadisticas',
+            loadComponent: () =>
+              import('./features/dashboard/estadisticas.component/estadisticas.component').then(
+                (m) => m.EstadisticasComponent,
+              ),
+          },
+          {
+            path: 'usuarios',
+            loadComponent: () =>
+              import('./features/dashboard/usuarios.component/usuarios.component').then(
+                (m) => m.UsuariosComponent,
+              ),
+          },
+        ],
       },
     ],
   },

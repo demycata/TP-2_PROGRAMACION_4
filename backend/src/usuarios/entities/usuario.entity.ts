@@ -31,6 +31,9 @@ export class Usuario {
 
   @Prop({ enum: ['usuario', 'administrador'], default: 'usuario' })
   perfil: string;
+
+  @Prop({ default: true })
+  habilitado: boolean;
 }
 
 export const UsuarioSchema = SchemaFactory.createForClass(Usuario);//crea un esquema de Mongoose a partir de la clase Usuario, que se usará para definir la estructura de los documentos en la colección de usuarios en la base de datos

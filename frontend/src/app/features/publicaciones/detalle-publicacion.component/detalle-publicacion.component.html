@@ -56,8 +56,32 @@
           }
         }
       </button>
+      <button *appSoloAdmin="p.autor._id" class="eliminar" type="button" title="Eliminar la publicación" (click)="pedirConfirmacion()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+        </svg>
+        Eliminar
+      </button>
     </div>
 
     <app-comentarios [publicacion]="p" />
+
+    @if (confirmando()) {
+      <app-modal titulo="¿Eliminar esta publicación?" (cerrar)="cancelarEliminacion()">
+        <p class="confirmacion">Se va a eliminar junto con sus comentarios y no se puede deshacer.</p>
+        <pre class="git-rm mono"><div class="comando">$ git rm publicaciones/{{ p._id | hashCorto }}.md</div><div class="borrado">- {{ p.titulo }}</div><div class="borrado">- {{ p.cantidadMeGusta }} me gusta</div></pre>
+        @if (errorEliminar(); as mensaje) {
+          <p class="aviso aviso-error">{{ mensaje }}</p>
+        }
+        <div class="acciones-modal">
+          <button class="btn btn-secundario" type="button" [disabled]="eliminando()" (click)="cancelarEliminacion()">
+            Cancelar
+          </button>
+          <button class="btn btn-peligro" type="button" [disabled]="eliminando()" (click)="confirmarEliminacion(p)">
+            {{ eliminando() ? 'Eliminando…' : 'Eliminar' }}
+          </button>
+        </div>
+      </app-modal>
+    }
   }
 </section>

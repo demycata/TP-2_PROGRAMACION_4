@@ -93,19 +93,6 @@
   height: 1px;
 }
 
-.aviso-flotante {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  z-index: 50;
-  transform: translateX(-50%);
-  margin: 0;
-  border: 1px solid var(--c-accent);
-  background: var(--c-surface);
-  box-shadow: var(--sh-modal);
-  white-space: nowrap;
-}
-
 .vacio {
   display: flex;
   flex-direction: column;
@@ -118,48 +105,6 @@
 
 .comentario {
   color: var(--c-cm);
-}
-
-.confirmacion {
-  color: var(--c-muted);
-  font: 14px/1.6 var(--f-ui);
-}
-
-.git-rm {
-  margin: 0;
-  padding: 12px 0;
-  background: var(--c-code-bg);
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-md);
-  font-size: 12.5px;
-  line-height: 1.75;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.git-rm div {
-  padding: 0 14px;
-}
-
-.comando {
-  color: var(--c-muted);
-}
-
-.borrado {
-  background: var(--c-danger-soft);
-  color: var(--c-danger);
-}
-
-.acciones-modal {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.acciones-modal .btn {
-  height: 40px;
-  font-size: 14px;
 }
 
 @media (max-width: 1000px) {
@@ -180,9 +125,5 @@
 
   .listado {
     gap: 12px;
-  }
-
-  .aviso-flotante {
-    bottom: 96px;
   }
 }

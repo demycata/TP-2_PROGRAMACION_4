@@ -12,13 +12,11 @@
     @if (p.etiqueta; as etiqueta) {
       <span class="chip-etiqueta" [class]="'color-' + etiqueta">#{{ etiqueta }}</span>
     }
-    @if (esMia()) {
-      <button class="eliminar" type="button" title="Eliminar" aria-label="Eliminar publicación" (click)="eliminar.emit(p)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
-        </svg>
-      </button>
-    }
+    <button *appSoloAdmin="p.autor._id" class="eliminar" type="button" title="Eliminar" aria-label="Eliminar publicación" (click)="eliminar.emit(p)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+      </svg>
+    </button>
   </header>
 
   <div class="contenido">

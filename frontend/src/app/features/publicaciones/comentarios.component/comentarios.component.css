@@ -174,20 +174,3 @@ h2 {
     display: none;
   }
 }
-
-.confirmacion {
-  color: var(--c-muted);
-  font: 14px/1.6 var(--f-ui);
-}
-
-.acciones-modal {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.acciones-modal .btn {
-  height: 40px;
-  font-size: 14px;
-}

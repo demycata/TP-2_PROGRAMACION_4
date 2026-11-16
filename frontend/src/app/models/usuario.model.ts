@@ -1,3 +1,5 @@
+export type PerfilUsuario = 'usuario' | 'administrador';
+
 export interface Usuario {
   _id: string;
   nombre: string;
@@ -7,6 +9,13 @@ export interface Usuario {
   fechaNacimiento: string;
   descripcion: string;
   imagenPerfil: string;
-  perfil: 'usuario' | 'administrador';
+  perfil: PerfilUsuario;
+  habilitado: boolean;
   createdAt: string;
+}
+
+export interface OpcionPerfil {
+  valor: PerfilUsuario;
+  texto: string;
+  descripcion: string;
 }

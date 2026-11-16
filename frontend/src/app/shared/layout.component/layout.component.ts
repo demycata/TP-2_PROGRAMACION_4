@@ -6,11 +6,20 @@ import { NavbarComponent } from '../navbar.component/navbar.component';
 import { ExploradorComponent } from '../explorador.component/explorador.component';
 import { AvisoSesionComponent } from '../aviso-sesion.component/aviso-sesion.component';
 import { SesionService } from '../../core/auth/sesion.service';
+import { SoloAdminDirective } from '../directives/solo-admin.directive';
 import { Pestana } from '../../models/navegacion.model';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NavbarComponent, ExploradorComponent, AvisoSesionComponent],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    NavbarComponent,
+    ExploradorComponent,
+    AvisoSesionComponent,
+    SoloAdminDirective,
+  ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css',
 })
@@ -26,6 +35,15 @@ export class LayoutComponent {
     if (ruta === '/mi-perfil') {
       const usuario = this.sesionService.usuario()?.nombreUsuario;
       return { archivo: 'perfil.md', miga: usuario ? `@${usuario} › perfil.md` : 'perfil.md' };
+    }
+    if (ruta === '/dashboard/estadisticas') {
+      return { archivo: 'estadisticas.json', miga: 'dashboard › estadisticas.json' };
+    }
+    if (ruta === '/dashboard/usuarios') {
+      return { archivo: 'usuarios.json', miga: 'dashboard › usuarios.json' };
+    }
+    if (ruta === '/dashboard/usuarios/nuevo') {
+      return { archivo: 'nuevo-usuario.md', miga: 'dashboard › usuarios › nuevo' };
     }
     if (ruta.startsWith('/publicaciones/')) {
       const archivo = `publicacion-${ruta.slice(-7)}.md`;
@@ -58,7 +76,7 @@ export class LayoutComponent {
       ),
       { initialValue: router.url.split(/[?#]/)[0] },
     );
-    this.etiqueta = toSignal(rutaActiva.queryParamMap.pipe(map((parametros) => parametros.get('etiqueta'))), {
+    this.etiqueta = toSignal(rutaActiva.queryParamMap.pipe(map((parametros) => parametros.get('etiqueta'))), {//agarra el query param "etiqueta" de la ruta actual y lo actualiza cuando cambia
       initialValue: null,
     });
   }

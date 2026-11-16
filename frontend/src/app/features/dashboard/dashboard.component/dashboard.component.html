@@ -1,0 +1,13 @@
+<section class="dashboard">
+  <div class="titulos">
+    <span class="comentario mono">// solo administradores</span>
+    <h1 class="titulo-pagina">Dashboard</h1>
+  </div>
+
+  <nav class="pestanas" aria-label="Secciones del dashboard">
+    <a routerLink="estadisticas" routerLinkActive="activa" ariaCurrentWhenActive="page">Estadísticas</a>
+    <a routerLink="usuarios" routerLinkActive="activa" ariaCurrentWhenActive="page">Usuarios</a>
+  </nav>
+
+  <router-outlet />
+</section>

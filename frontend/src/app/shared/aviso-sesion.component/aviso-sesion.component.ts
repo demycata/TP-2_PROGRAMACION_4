@@ -26,7 +26,7 @@ export class AvisoSesionComponent {
     private sesionService: SesionService,
     private router: Router,
   ) {
-    this.actualizarSegundos();
+    this.actualizarSegundos(); //actualiza los segundos restantes para que se muestre el aviso de sesión
     interval(1000)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.actualizarSegundos());
@@ -39,6 +39,12 @@ export class AvisoSesionComponent {
     this.authService.refrescar().subscribe({
       next: ({ token }) => this.sesionService.renovar(token),
       error: (error: HttpErrorResponse) => {
+        // 403: un administrador lo deshabilitó mientras tenía la sesión abierta
+        if (error.status === 403) {
+          this.sesionService.cerrar();
+          this.router.navigate(['/login'], { state: { error: mensajeDeError(error) } });
+          return;
+        }
         this.error.set(mensajeDeError(error));
         this.extendiendo.set(false);
       },

@@ -1,10 +1,10 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Publicacion } from '../../../models/publicacion.model';
-import { SesionService } from '../../../core/auth/sesion.service';
 import { MeGustaComponent } from '../me-gusta.component/me-gusta.component';
 import { CopiarLinkDirective } from '../../../shared/directives/copiar-link.directive';
+import { SoloAdminDirective } from '../../../shared/directives/solo-admin.directive';
 import { HashCortoPipe } from '../../../shared/pipes/hash-corto.pipe';
 import { TiempoRelativoPipe } from '../../../shared/pipes/tiempo-relativo.pipe';
 import { MensajeComponent } from '../../../shared/mensaje.component/mensaje.component';
@@ -17,6 +17,7 @@ import { MensajeComponent } from '../../../shared/mensaje.component/mensaje.comp
     MeGustaComponent,
     MensajeComponent,
     CopiarLinkDirective,
+    SoloAdminDirective,
     HashCortoPipe,
     TiempoRelativoPipe,
   ],
@@ -26,8 +27,4 @@ import { MensajeComponent } from '../../../shared/mensaje.component/mensaje.comp
 export class PublicacionComponent {
   publicacion = input.required<Publicacion>();
   eliminar = output<Publicacion>();
-
-  esMia = computed(() => this.sesionService.usuario()?._id === this.publicacion().autor._id);
-
-  constructor(private sesionService: SesionService) {}
 }

@@ -26,8 +26,9 @@ export class CargandoComponent {
         router.navigateByUrl(destino);
       },
       error: (error: HttpErrorResponse) => {
-        // el 401 ya lo resuelve tokenInterceptor
+        // el 401 ya lo resuelve tokenInterceptor; un 403 es un usuario deshabilitado
         if (error.status !== 401) {
+          sesionService.cerrar();
           router.navigate(['/login'], { state: { error: mensajeDeError(error) } });
         }
       },

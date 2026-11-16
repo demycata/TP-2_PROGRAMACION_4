@@ -100,7 +100,8 @@ h1 {
   flex: 1;
 }
 
-.compartir {
+.compartir,
+.eliminar {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -117,6 +118,11 @@ h1 {
 
 .compartir:hover {
   background: var(--c-surface-2);
+}
+
+.eliminar:hover {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
 }
 
 app-comentarios {

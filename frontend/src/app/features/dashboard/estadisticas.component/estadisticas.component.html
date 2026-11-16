@@ -1,0 +1,86 @@
+<div class="graficos">
+  @for (tarjeta of tarjetas; track tarjeta.clave) {
+    @let lapso = lapsos()[tarjeta.clave];
+    @let error = errores()[tarjeta.clave];
+    @let configuracion = configuraciones[tarjeta.clave]();
+
+    <article class="tarjeta grafico" [class.ancho]="tarjeta.ancho">
+      <header class="cabecera">
+        <div class="titulos">
+          <span class="tipo mono">// {{ tarjeta.tipo }}</span>
+          <h2>{{ tarjeta.titulo }}</h2>
+        </div>
+        @if (!cargando()[tarjeta.clave] && !error) {
+          <span class="total mono">
+            {{ tarjeta.unidad }}: <strong>{{ totales()[tarjeta.clave] }}</strong>
+          </span>
+        }
+      </header>
+
+      <div class="lapso">
+        <div class="opciones" role="group" aria-label="Lapso de tiempo">
+          @for (opcion of opcionesLapso; track opcion.valor) {
+            <button
+              type="button"
+              class="opcion"
+              [class.activa]="lapso.opcion === opcion.valor"
+              [attr.aria-pressed]="lapso.opcion === opcion.valor"
+              (click)="elegirOpcion(tarjeta.clave, opcion.valor)"
+            >
+              {{ opcion.texto }}
+            </button>
+          }
+        </div>
+
+        @if (lapso.opcion === 'personalizado') {
+          <div class="fechas">
+            <label>
+              <span class="mono muted">desde</span>
+              <input
+                #desde
+                class="input"
+                type="date"
+                [value]="lapso.desde"
+                [max]="hoy"
+                (change)="cambiarFecha(tarjeta.clave, 'desde', desde.value)"
+              />
+            </label>
+            <label>
+              <span class="mono muted">hasta</span>
+              <input
+                #hasta
+                class="input"
+                type="date"
+                [value]="lapso.hasta"
+                [max]="hoy"
+                (change)="cambiarFecha(tarjeta.clave, 'hasta', hasta.value)"
+              />
+            </label>
+          </div>
+          @if (!lapso.desde || !lapso.hasta) {
+            <small class="error">Elegí las dos fechas.</small>
+          } @else if (lapso.desde > lapso.hasta) {
+            <small class="error">La fecha "desde" no puede ser posterior a "hasta".</small>
+          }
+        }
+      </div>
+
+      <div class="cuerpo">
+        @if (cargando()[tarjeta.clave]) {
+          <p class="estado mono muted">Cargando…</p>
+        } @else if (error) {
+          <div class="estado">
+            <small class="error">{{ error }}</small>
+            <button type="button" class="btn btn-secundario" (click)="cargar(tarjeta.clave)">
+              Reintentar
+            </button>
+          </div>
+        } @else if (configuracion) {
+          <app-grafico [configuracion]="configuracion" [alto]="altos()[tarjeta.clave]" />
+        } @else {
+          <p class="estado mono muted">// sin datos en este lapso</p>
+        }
+      </div>
+    </article>
+  }
+</div>

@@ -1,0 +1,148 @@
+@let c = form.controls;
+<section class="nuevo">
+  <a class="volver mono" routerLink="/dashboard/usuarios">← volver a usuarios</a>
+
+  <div class="titulos">
+    <span class="comentario mono">// mismos datos que el registro, con el perfil elegido</span>
+    <h1 class="titulo-pagina">Nuevo usuario</h1>
+  </div>
+
+  @if (error(); as mensaje) {
+    <div class="aviso aviso-error" role="alert">{{ mensaje }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="crear()" novalidate>
+    <div class="columnas">
+      <fieldset class="tarjeta">
+        <legend class="mono">credenciales</legend>
+
+        <label class="campo">
+          <span>correo</span>
+          <input class="input" type="email" formControlName="correo" autocomplete="off" />
+          @if (c.correo.touched && c.correo.hasError('required')) {
+            <small class="error">El correo es obligatorio.</small>
+          } @else if (c.correo.touched && c.correo.hasError('email')) {
+            <small class="error">El correo no es válido.</small>
+          }
+        </label>
+
+        <label class="campo">
+          <span>usuario</span>
+          <input class="input" formControlName="nombreUsuario" autocomplete="off" />
+          @if (c.nombreUsuario.touched && c.nombreUsuario.invalid) {
+            <small class="error">El nombre de usuario es obligatorio.</small>
+          }
+        </label>
+
+        <label class="campo">
+          <span>contraseña</span>
+          <input class="input" type="password" formControlName="password" autocomplete="new-password" />
+          <div class="reglas">
+            @for (regla of reglas(); track regla.texto) {
+              <span [class.cumple]="regla.cumple">{{ regla.cumple ? '✓' : '✗' }} {{ regla.texto }}</span>
+            }
+          </div>
+          @if (c.password.touched && c.password.hasError('required')) {
+            <small class="error">La contraseña es obligatoria.</small>
+          } @else if (c.password.touched && c.password.hasError('pattern')) {
+            <small class="error">La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.</small>
+          }
+        </label>
+
+        <label class="campo">
+          <span>repetir contraseña</span>
+          <input class="input" type="password" formControlName="repetirPassword" autocomplete="new-password" />
+          @if (c.repetirPassword.touched && c.repetirPassword.hasError('required')) {
+            <small class="error">Repetí la contraseña.</small>
+          } @else if (c.repetirPassword.touched && c.repetirPassword.hasError('losControlesNoCoinciden')) {
+            <small class="error">Las contraseñas no coinciden.</small>
+          }
+        </label>
+
+        <div class="campo">
+          <span>perfil</span>
+          <div class="perfiles" role="radiogroup" aria-label="Perfil del usuario">
+            @for (opcion of perfiles; track opcion.valor) {
+              <label class="perfil" [class.elegido]="c.perfil.value === opcion.valor">
+                <input type="radio" formControlName="perfil" [value]="opcion.valor" />
+                <span class="perfil-texto">
+                  <span class="perfil-nombre">{{ opcion.texto }}</span>
+                  <span class="muted">{{ opcion.descripcion }}</span>
+                </span>
+              </label>
+            }
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="tarjeta">
+        <legend class="mono">datos personales</legend>
+
+        <div class="fila">
+          <label class="campo">
+            <span>nombre</span>
+            <input class="input" formControlName="nombre" autocomplete="off" />
+            @if (c.nombre.touched && c.nombre.invalid) {
+              <small class="error">El nombre es obligatorio.</small>
+            }
+          </label>
+          <label class="campo">
+            <span>apellido</span>
+            <input class="input" formControlName="apellido" autocomplete="off" />
+            @if (c.apellido.touched && c.apellido.invalid) {
+              <small class="error">El apellido es obligatorio.</small>
+            }
+          </label>
+        </div>
+
+        <label class="campo">
+          <span>nacimiento</span>
+          <input class="input" type="date" formControlName="fechaNacimiento" />
+          @if (c.fechaNacimiento.touched && c.fechaNacimiento.invalid) {
+            <small class="error">La fecha de nacimiento es obligatoria.</small>
+          }
+        </label>
+
+        <label class="campo">
+          <span>descripción</span>
+          <textarea class="input" formControlName="descripcion" rows="3"></textarea>
+          @if (c.descripcion.touched && c.descripcion.hasError('required')) {
+            <small class="error">La descripción es obligatoria.</small>
+          } @else if (c.descripcion.touched && c.descripcion.hasError('minlength')) {
+            <small class="error">La descripción debe tener al menos 5 caracteres.</small>
+          }
+        </label>
+
+        <div class="campo">
+          <span>foto de perfil</span>
+          <label class="selector-imagen" [class.invalida]="c.imagenPerfil.touched && c.imagenPerfil.invalid">
+            @if (vistaPrevia(); as url) {
+              <img [src]="url" alt="Vista previa de la foto de perfil" />
+            } @else {
+              <span class="avatar-vacio mono">?</span>
+            }
+            <span class="selector-texto">
+              <span class="selector-accion">Elegir imagen</span>
+              <span class="muted mono">JPG, PNG o WEBP · máx. 2 MB</span>
+            </span>
+            <input type="file" accept="image/jpeg,image/png,image/webp" (change)="seleccionarImagen($event)" />
+          </label>
+          @if (c.imagenPerfil.touched && c.imagenPerfil.hasError('required')) {
+            <small class="error">La foto de perfil es obligatoria.</small>
+          } @else if (c.imagenPerfil.hasError('tipoImagen')) {
+            <small class="error">La imagen debe ser JPG, PNG o WEBP.</small>
+          } @else if (c.imagenPerfil.hasError('tamanioImagen')) {
+            <small class="error">La imagen no puede superar los 2 MB.</small>
+          }
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="acciones">
+      <a class="btn btn-secundario" routerLink="/dashboard/usuarios">Cancelar</a>
+      <button class="btn btn-primario" type="submit" [disabled]="enviado()">
+        {{ enviado() ? 'Creando usuario…' : 'Crear usuario' }}
+      </button>
+    </div>
+  </form>
+</section>

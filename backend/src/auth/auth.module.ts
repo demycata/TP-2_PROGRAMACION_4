@@ -4,7 +4,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service.js';
 import { AuthController } from './auth.controller.js';
 import { UsuariosModule } from '../usuarios/usuarios.module.js';
-import { CloudinaryModule } from '../shared/cloudinary/cloudinary.module.js';
 
 @Module({
   imports: [
@@ -16,7 +15,6 @@ import { CloudinaryModule } from '../shared/cloudinary/cloudinary.module.js';
       signOptions: { expiresIn: '90s' },
     }),
     UsuariosModule,
-    CloudinaryModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

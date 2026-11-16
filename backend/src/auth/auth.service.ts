@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PasswordHasher } from '@nestjs/authentication';
 import { JwtService } from '@nestjs/jwt';
@@ -6,36 +6,22 @@ import { Model } from 'mongoose';
 import { RegistroDto } from './dto/registro.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { Usuario, UsuarioDocument } from '../usuarios/entities/usuario.entity.js';
-import { CloudinaryService } from '../shared/cloudinary/cloudinary.service.js';
+import { UsuariosService } from '../usuarios/usuarios.service.js';
 import { UsuarioToken } from '../guards/auth/auth.guard.js';
+
+const DESHABILITADO = 'Tu usuario está deshabilitado. Contactá a un administrador.';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(Usuario.name) private usuarioModel: Model<Usuario>, //inyeccion de dependencias para poder usar el modelo de usuario
     private readonly passwordHasher: PasswordHasher,
-    private readonly cloudinaryService: CloudinaryService,
+    private readonly usuariosService: UsuariosService,
     private readonly jwtService: JwtService,
   ) {}
 
   async registro(registroDto: RegistroDto, imagen: Express.Multer.File) {
-    const existente = await this.usuarioModel.findOne({
-      $or: [{ correo: registroDto.correo }, { nombreUsuario: registroDto.nombreUsuario }],
-    });
-
-    if (existente) {
-      throw new ConflictException(
-        existente.correo === registroDto.correo
-          ? 'El correo ya está registrado'
-          : 'El nombre de usuario ya está en uso',
-      );
-    }
-
-    const password = await this.passwordHasher.hash(registroDto.password);//encripta la contraseña antes de guardarla en la base de datos
-    const imagenPerfil = await this.cloudinaryService.subirImagen(imagen, 'perfiles');
-
-    const usuario = await this.usuarioModel.create({ ...registroDto, password, imagenPerfil });
-
+    const usuario = await this.usuariosService.crear(registroDto, imagen);
     return this.respuestaConToken(usuario);
   }
 
@@ -48,14 +34,23 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 
+    // se chequea después de la contraseña, así no se revela qué usuarios existen
+    if (!usuario.habilitado) {
+      throw new ForbiddenException(DESHABILITADO);
+    }
+
     return this.respuestaConToken(usuario);
   }
 
+  // 403 y no 401 si está deshabilitado: el token es válido, lo que falla es el permiso
   async autorizar(id: string) {
     const usuario = await this.usuarioModel.findById(id);
 
     if (!usuario) {
       throw new UnauthorizedException('El usuario ya no existe');
+    }
+    if (!usuario.habilitado) {
+      throw new ForbiddenException(DESHABILITADO);
     }
 
     return usuario;
@@ -63,13 +58,14 @@ export class AuthService {
 
   // req.user también trae iat y exp, y firmar un payload que ya tiene exp junto con expiresIn da error
   async refrescar({ sub, nombreUsuario, perfil }: UsuarioToken) {
+    await this.autorizar(sub);
     const token = await this.jwtService.signAsync({ sub, nombreUsuario, perfil });
     return { token };
   }
 
   private async respuestaConToken(usuario: UsuarioDocument) {
     const token = await this.generarToken(usuario);
-    return { token, usuario: this.sinPassword(usuario) };
+    return { token, usuario: this.usuariosService.sinPassword(usuario) };
   }
 
   private generarToken(usuario: UsuarioDocument) {
@@ -79,12 +75,5 @@ export class AuthService {
       perfil: usuario.perfil,
     };
     return this.jwtService.signAsync(payload);
-  }
-
-
-  //funcion auxiliar para eliminar la contraseña del objeto usuario antes de devolverlo al cliente
-  private sinPassword(usuario: UsuarioDocument) {
-    const { password: _, ...datos } = usuario.toObject(); //Excluye la contraseña del objeto devuelto . To object() convierte en json para devolver en la promise
-    return datos;
   }
 }
